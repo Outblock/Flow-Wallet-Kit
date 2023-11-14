@@ -22,10 +22,13 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "FlowWalletCore",
-            dependencies: ["KeychainAccess"]
+            dependencies: ["KeychainAccess"],
+            path: "iOS/FlowWalletCore/Sources"
         ),
         .testTarget(
             name: "FlowWalletCoreTests",
-            dependencies: ["FlowWalletCore"]),
+            dependencies: ["FlowWalletCore"],
+            path: "iOS/FlowWalletCore/Tests"
+        )
     ]
 )
