@@ -24,7 +24,7 @@ object SignatureManager {
     fun signData(privateKey: PrivateKey, data: ByteArray): ByteArray {
         try {
             val signature = Signature.getInstance("SHA256withECDSA")
-            val hashedData = sha256(data).hexStringToByteArray()
+            val hashedData = sha256ByteArray(data)
             signature.initSign(privateKey)
             signature.update(hashedData)
             val asn1Signature = signature.sign()
@@ -32,6 +32,7 @@ object SignatureManager {
             val r = (seq.getObjectAt(0) as ASN1Integer).value.toByteArray()
             val s = (seq.getObjectAt(1) as ASN1Integer).value.toByteArray()
             return (r.takeLast(32) + s.takeLast(32)).toByteArray()
+//            return seq.encoded
         } catch (e: Exception) {
             Log.e(TAG, "Error while signing data: $e")
             throw KeyManagerException("Error signing data", e)
@@ -48,16 +49,8 @@ object SignatureManager {
         }
     }
 
-    private fun sha256(bytes: ByteArray): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(bytes)
-
-        val result = StringBuilder()
-        for (byte in digest) {
-            result.append(String.format("%02x", byte))
-        }
-
-        return result.toString()
+    private fun sha256ByteArray(bytes: ByteArray): ByteArray {
+        return MessageDigest.getInstance("SHA-256").digest(bytes)
     }
 
     private fun String.hexStringToByteArray(): ByteArray {
