@@ -24,9 +24,8 @@ object SignatureManager {
     fun signData(privateKey: PrivateKey, data: ByteArray): ByteArray {
         try {
             val signature = Signature.getInstance("SHA256withECDSA")
-            val hashedData = sha256ByteArray(data)
             signature.initSign(privateKey)
-            signature.update(hashedData)
+            signature.update(data)
             val asn1Signature = signature.sign()
             val seq = ASN1Sequence.getInstance(asn1Signature)
             val r = (seq.getObjectAt(0) as ASN1Integer).value.toByteArray()
@@ -47,15 +46,5 @@ object SignatureManager {
             bytes.size < 32 -> bytes + ByteArray(32 - bytes.size)
             else -> bytes
         }
-    }
-
-    private fun sha256ByteArray(bytes: ByteArray): ByteArray {
-        return MessageDigest.getInstance("SHA-256").digest(bytes)
-    }
-
-    private fun String.hexStringToByteArray(): ByteArray {
-        return chunked(2)
-            .map { it.toInt(16).toByte() }
-            .toByteArray()
     }
 }
