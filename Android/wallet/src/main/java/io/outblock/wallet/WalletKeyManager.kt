@@ -1,12 +1,10 @@
 package io.outblock.wallet
 
-import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import com.google.common.io.BaseEncoding
+import org.bouncycastle.util.BigIntegers
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
@@ -14,12 +12,12 @@ import java.security.KeyStore.PrivateKeyEntry
 import java.security.KeyStoreException
 import java.security.PrivateKey
 import java.security.PublicKey
+import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
 import java.util.Enumeration
 import javax.security.auth.x500.X500Principal
 
 object KeyManager {
-    private const val TAG = "KeyManager"
     private const val KEYSTORE_ALIAS_PREFIX = "user_keystore_"
     private val keyStore = KeyStore.getInstance("AndroidKeyStore")
 
@@ -27,8 +25,8 @@ object KeyManager {
         try {
             keyStore.load(null)
         } catch (e: KeyStoreException) {
-            Log.e(TAG, "Error initializing keystore: $e")
-            throw KeyManagerException("Error initializing keystore", e)
+            Log.e(WALLET_TAG, "Error initializing keystore: $e")
+            throw WalletCoreException("Error initializing keystore", e)
         }
     }
 
@@ -40,7 +38,8 @@ object KeyManager {
             )
 
             val keyGenSpec = KeyGenParameterSpec.Builder(
-                generateAlias(prefix), KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
+                generateAlias(prefix),
+                KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
                 .setAlgorithmParameterSpec(ECGenParameterSpec("P-256"))
                 .setCertificateSubject(X500Principal("CN=$prefix"))
                 .setDigests(KeyProperties.DIGEST_SHA256)
@@ -49,19 +48,8 @@ object KeyManager {
             keyPairGenerator.initialize(keyGenSpec)
             return keyPairGenerator.generateKeyPair()
         } catch (e: Exception) {
-            Log.e(TAG, "Error generating key pair: $e")
-            throw KeyManagerException("Error generating key pair", e)
-        }
-    }
-
-    fun generateKeyEntryWithPrefix(prefix: String): PrivateKeyEntry? {
-        try {
-            generateKeyWithPrefix(prefix)
-            val entry = keyStore.getEntry(generateAlias(prefix), null)
-            return entry as? PrivateKeyEntry
-        } catch (e: Exception) {
-            Log.e(TAG, "Error generating key entry: $e")
-            throw KeyManagerException("Error generating key entry", e)
+            Log.e(WALLET_TAG, "Error generating key pair: $e")
+            throw WalletCoreException("Error generating key pair", e)
         }
     }
 
@@ -70,8 +58,8 @@ object KeyManager {
             val keyEntry = keyStore.getEntry(generateAlias(prefix), null) as? PrivateKeyEntry
             return keyEntry?.privateKey
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting private key: $e")
-            throw KeyManagerException("Error getting private key", e)
+            Log.e(WALLET_TAG, "Error getting private key: $e")
+            throw WalletCoreException("Error getting private key", e)
         }
     }
 
@@ -80,8 +68,8 @@ object KeyManager {
             val keyEntry = keyStore.getEntry(generateAlias(prefix), null) as? PrivateKeyEntry
             return keyEntry?.certificate?.publicKey
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting public key: $e")
-            throw KeyManagerException("Error getting public key", e)
+            Log.e(WALLET_TAG, "Error getting public key: $e")
+            throw WalletCoreException("Error getting public key", e)
         }
     }
 
@@ -93,7 +81,7 @@ object KeyManager {
         return try {
             keyStore.containsAlias(generateAlias(prefix))
         } catch (e: KeyStoreException) {
-            Log.e(TAG, "Error checking alias existence: $e")
+            Log.e(WALLET_TAG, "Error checking alias existence: $e")
             false
         }
     }
@@ -107,7 +95,7 @@ object KeyManager {
             }
             aliases
         } catch (e: KeyStoreException) {
-            Log.e(TAG, "Error getting all aliases: $e")
+            Log.e(WALLET_TAG, "Error getting all aliases: $e")
             emptyList()
         }
     }
@@ -121,7 +109,7 @@ object KeyManager {
             }
             return false
         } catch (e: KeyStoreException) {
-            Log.e(TAG, "Error deleting entry: $e")
+            Log.e(WALLET_TAG, "Error deleting entry: $e")
             return false
         }
     }
@@ -133,10 +121,17 @@ object KeyManager {
                 keyStore.deleteEntry(alias)
             }
         } catch (e: KeyStoreException) {
-            Log.e(TAG, "Error clearing all entries: $e")
-            throw KeyManagerException("Error clearing all entries", e)
+            Log.e(WALLET_TAG, "Error clearing all entries: $e")
+            throw WalletCoreException("Error clearing all entries", e)
         }
     }
 }
 
-class KeyManagerException(message: String, cause: Throwable?) : RuntimeException(message, cause)
+fun PublicKey?.toFormatString(): String {
+    return (this as? ECPublicKey)?.w?.let {
+        val bytes =
+            BigIntegers.asUnsignedByteArray(it.affineX) + BigIntegers.asUnsignedByteArray(it.affineY)
+        BaseEncoding.base16().lowerCase().encode(bytes)
+    } ?: ""
+}
+
