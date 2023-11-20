@@ -65,7 +65,7 @@ public struct WallectSecureEnclave {
             data = prefixData + textData
         }
         do {
-            return try privateKey.signature(for: data).rawRepresentation.hexValue
+            return try privateKey.signature(for: data).rawRepresentation.toHexValue
         } catch {
             debugPrint(error)
             throw error

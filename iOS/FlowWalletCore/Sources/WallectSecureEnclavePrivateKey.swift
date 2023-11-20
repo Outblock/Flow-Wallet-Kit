@@ -17,7 +17,7 @@ public extension WallectSecureEnclave {
         }
         
         public var publickeyValue: String? {
-            return publicKey?.rawRepresentation.hexValue
+            return publicKey?.rawRepresentation.toHexValue
         }
         
         public init(data: Data) throws {

@@ -9,7 +9,7 @@ import Foundation
 
 public extension Data {
     
-    var hexValue: String {
+    var toHexValue: String {
         return reduce("") { $0 + String(format: "%02x", $1) }
     }
 }
