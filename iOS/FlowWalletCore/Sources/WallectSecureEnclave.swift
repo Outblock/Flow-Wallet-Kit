@@ -7,6 +7,7 @@
 
 import CryptoKit
 import Foundation
+import Flow
 
 public enum SignError: Error, LocalizedError {
     case unknown
@@ -15,7 +16,7 @@ public enum SignError: Error, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .privateKeyEmpty:
-            return "[Sign] private key is empty,check `init(privateKey:)`"
+                return "[Sign] private key is empty,check `init(privateKey:)`"
         
         default:
             return "[Sign] There was an error. Please try again."
@@ -71,4 +72,28 @@ public struct WallectSecureEnclave {
             throw error
         }
     }
+}
+
+extension WallectSecureEnclave {
+    public enum SignAlgo {
+        case P256
+    }
+    
+    public func accountKey(sign: SignAlgo = .P256) throws -> Flow.AccountKey {
+        guard let publickeyValue = key.publickeyValue else {
+            print(" generate private key empty")
+            throw SignError.privateKeyEmpty
+        }
+        switch sign {
+        case .P256:
+            return try accountKeyForP256(publicKeyValue: publickeyValue)
+        }
+    }
+    
+    func accountKeyForP256(publicKeyValue: String) throws -> Flow.AccountKey {
+        let publicKey = Flow.PublicKey(hex: publicKeyValue)
+        let key = Flow.AccountKey(publicKey: publicKey, signAlgo: .ECDSA_P256, hashAlgo: .SHA2_256, weight: 1000)
+        return key
+    }
+    
 }
