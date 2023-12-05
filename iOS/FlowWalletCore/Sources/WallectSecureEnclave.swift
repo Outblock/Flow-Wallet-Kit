@@ -12,6 +12,7 @@ import Flow
 public enum SignError: Error, LocalizedError {
     case unknown
     case privateKeyEmpty
+    case emptyContent
     
     public var errorDescription: String? {
         switch self {
@@ -54,23 +55,11 @@ public struct WallectSecureEnclave {
         }
     }
     
-    public func sign(text: String, prefix: Data? = nil) throws -> String? {
-        guard let privateKey = key.privateKey else {
-            throw SignError.privateKeyEmpty
-        }
+    public func sign(text: String) throws -> String {
         guard let textData = text.data(using: .utf8) else {
-            return nil
+            throw SignError.emptyContent
         }
-        var data = textData
-        if let prefixData = prefix {
-            data = prefixData + textData
-        }
-        do {
-            return try privateKey.signature(for: data).rawRepresentation.toHexValue
-        } catch {
-            debugPrint(error)
-            throw error
-        }
+        return try sign(data: textData).hexValue
     }
 }
 
@@ -96,4 +85,19 @@ extension WallectSecureEnclave {
         return key
     }
     
+}
+
+extension Data {
+    public func signUserMessage() -> Data {
+        return Flow.DomainTag.user.normalize + self
+    }
+}
+
+extension String {
+    public func AddUserMessage() -> Data? {
+        guard let textData = self.data(using: .utf8) else {
+            return nil
+        }
+        return Flow.DomainTag.user.normalize + textData
+    }
 }

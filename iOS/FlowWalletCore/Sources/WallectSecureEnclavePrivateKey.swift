@@ -7,6 +7,7 @@
 
 import CryptoKit
 import Foundation
+import Flow
 
 public extension WallectSecureEnclave {
     struct PrivateKey {
@@ -17,7 +18,7 @@ public extension WallectSecureEnclave {
         }
         
         public var publickeyValue: String? {
-            return publicKey?.rawRepresentation.toHexValue
+            return publicKey?.rawRepresentation.hexValue
         }
         
         public init(data: Data) throws {
