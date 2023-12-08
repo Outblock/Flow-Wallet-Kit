@@ -21,6 +21,8 @@ object KeyManager {
     private const val KEYSTORE_ALIAS_PREFIX = "user_keystore_"
     private val keyStore = KeyStore.getInstance("AndroidKeyStore")
 
+    private var currentPrefix: String = ""
+
     init {
         try {
             keyStore.load(null)
@@ -30,7 +32,12 @@ object KeyManager {
         }
     }
 
+    fun getCurrentPrefix(): String {
+        return currentPrefix
+    }
+
     fun generateKeyWithPrefix(prefix: String): KeyPair {
+        currentPrefix = prefix
         try {
             val keyPairGenerator = KeyPairGenerator.getInstance(
                 KeyProperties.KEY_ALGORITHM_EC,
