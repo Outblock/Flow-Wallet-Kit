@@ -4,33 +4,35 @@
 import PackageDescription
 
 let package = Package(
-    name: "FlowWalletCore",
+    name: "FlowWalletKit",
     platforms: [
-            .macOS(.v10_14), .iOS(.v13), .tvOS(.v13)
+        .iOS(.v13),
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "FlowWalletCore",
-            targets: ["FlowWalletCore"]),
+            name: "FlowWalletKit",
+            targets: ["FlowWalletKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", from: "4.2.2"),
-        .package(url: "https://github.com/outblock/flow-swift.git", from: "0.3.2")
+        .package(url: "https://github.com/outblock/flow-swift.git", from: "0.3.2"),
+        .package(url: "https://github.com/trustwallet/wallet-core", .exact("4.0.17"))
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-
         .target(
-            name: "FlowWalletCore",
-            dependencies: ["KeychainAccess", .product(name: "Flow",package: "flow-swift")],
-            path: "iOS/FlowWalletCore/Sources"
+            name: "FlowWalletKit",
+            dependencies: [
+                "KeychainAccess",
+                .product(name: "Flow",package: "flow-swift"),
+                .product(name: "WalletCore", package: "wallet-core"),
+                .product(name: "SwiftProtobuf", package: "wallet-core")
+            ],
+            path: "iOS/FlowWalletKit/Sources"
         ),
         .testTarget(
-            name: "FlowWalletCoreTests",
-            dependencies: ["FlowWalletCore"],
-            path: "iOS/FlowWalletCore/Tests"
+            name: "FlowWalletKitTests",
+            dependencies: ["FlowWalletKit"],
+            path: "iOS/FlowWalletKit/Tests"
         )
     ]
 )

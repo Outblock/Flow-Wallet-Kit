@@ -1,14 +1,43 @@
 {
-  "pins" : [
-    {
-      "identity" : "keychainaccess",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
-      "state" : {
-        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
-        "version" : "4.2.2"
+  "object": {
+    "pins": [
+      {
+        "package": "BigInt",
+        "repositoryURL": "https://github.com/attaswift/BigInt.git",
+        "state": {
+          "branch": null,
+          "revision": "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+          "version": "5.3.0"
+        }
+      },
+      {
+        "package": "Flow",
+        "repositoryURL": "https://github.com/outblock/flow-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "ac9b3f5f7653c5791057910257c2b416e5084d97",
+          "version": "0.3.5"
+        }
+      },
+      {
+        "package": "KeychainAccess",
+        "repositoryURL": "https://github.com/kishikawakatsumi/KeychainAccess",
+        "state": {
+          "branch": null,
+          "revision": "84e546727d66f1adc5439debad16270d0fdd04e7",
+          "version": "4.2.2"
+        }
+      },
+      {
+        "package": "WalletCore",
+        "repositoryURL": "https://github.com/trustwallet/wallet-core",
+        "state": {
+          "branch": null,
+          "revision": "cd5a27481d2181e63362cb57e2b2160506cce163",
+          "version": "4.0.17"
+        }
       }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }
