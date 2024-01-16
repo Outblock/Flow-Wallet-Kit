@@ -84,7 +84,7 @@ public class SPWallet: WalletProtocol {
     
     public func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data {
         let pubK = try getPublicKey(signAlgo: signAlgo)
-        return pubK.uncompressed.data
+        return pubK.uncompressed.data.dropFirst()
     }
     
     public func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data {

@@ -84,13 +84,3 @@ public class SEWallet: WalletProtocol {
         return try key.signature(for: hashed).rawRepresentation
     }
 }
-
-
-//extension String {
-//    public func AddUserMessage() -> Data? {
-//        guard let textData = self.data(using: .utf8) else {
-//            return nil
-//        }
-//        return Flow.DomainTag.user.normalize + textData
-//    }
-//}
