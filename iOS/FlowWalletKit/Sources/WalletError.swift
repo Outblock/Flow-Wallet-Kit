@@ -13,7 +13,10 @@ public enum WalletError: Error {
     case unsupportSignatureAlgorithm
     case initChaChapolyFailed
     case initHDWalletFailed
+    case initPrivateKeyFailed
     case restoreWalletFailed
     case invaildSignatureAlgorithm
+    case invaildPassword
+    case invaildKeyStorePassword
     case signError
 }

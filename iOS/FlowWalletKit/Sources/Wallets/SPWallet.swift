@@ -90,7 +90,7 @@ public class SPWallet: WalletProtocol {
     public func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data {
         let hashed = try hashAlgo.hash(data: data)
         
-        guard let curve = signAlgo.HDCurve else {
+        guard let curve = signAlgo.WCCurve else {
             throw WalletError.unsupportSignatureAlgorithm
         }
     

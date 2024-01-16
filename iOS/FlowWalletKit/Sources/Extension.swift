@@ -22,7 +22,7 @@ extension Flow.HashAlgorithm {
 }
 
 extension Flow.SignatureAlgorithm {
-    var HDCurve: Curve? {
+    var WCCurve: Curve? {
         switch self {
         case .ECDSA_P256:
             return Curve.nist256p1

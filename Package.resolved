@@ -29,6 +29,15 @@
         }
       },
       {
+        "package": "SwiftFormat",
+        "repositoryURL": "https://github.com/nicklockwood/SwiftFormat",
+        "state": {
+          "branch": null,
+          "revision": "fef156a6135e584985ed26713dd2e9ee41f952cb",
+          "version": "0.53.0"
+        }
+      },
+      {
         "package": "WalletCore",
         "repositoryURL": "https://github.com/trustwallet/wallet-core",
         "state": {

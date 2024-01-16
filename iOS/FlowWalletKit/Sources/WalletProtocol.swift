@@ -20,4 +20,12 @@ public protocol WalletProtocol {
     func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool
     func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data
     func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data
+    func remove(id: String) throws
+}
+
+
+extension WalletProtocol {
+    public func remove(id: String) throws {
+        try keychain.remove(id)
+    }
 }
