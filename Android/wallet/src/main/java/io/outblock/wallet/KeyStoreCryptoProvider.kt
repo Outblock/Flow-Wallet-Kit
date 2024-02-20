@@ -4,6 +4,8 @@ import com.nftco.flow.sdk.HashAlgorithm
 import com.nftco.flow.sdk.SignatureAlgorithm
 import com.nftco.flow.sdk.Signer
 import com.nftco.flow.sdk.bytesToHex
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.Security
 
 
 class KeyStoreCryptoProvider(private val prefix: String): CryptoProvider {
@@ -24,6 +26,8 @@ class KeyStoreCryptoProvider(private val prefix: String): CryptoProvider {
 
     override fun getSigner(): Signer {
         val privateKey = KeyManager.getPrivateKeyByPrefix(prefix)
+        // fix: java.security.InvalidKeyException: no encoding for EC private key
+        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
         return WalletCoreSigner(privateKey)
     }
 
