@@ -31,6 +31,7 @@ public struct WallectSecureEnclave {
     public init(privateKey data: Data) throws {
         do {
             key = try PrivateKey(data: data)
+            debugPrint("[Wallet Core] init private key: \(String(describing: key.publickeyValue))")
         }catch {
             debugPrint("[Wallet Core] init private key failed")
             throw error
@@ -40,6 +41,7 @@ public struct WallectSecureEnclave {
     
     public init() throws {
         key = try PrivateKey()
+        debugPrint("[Wallet Core] init private key: \(String(describing: key.publickeyValue))")
     }
     
     public func sign(data: Data) throws -> Data {

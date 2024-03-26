@@ -16,7 +16,7 @@ public extension WallectSecureEnclave {
     }
 
     enum Store {
-        private static var service: String = "io.outblock.lilico.securekey"
+        private static var service: String = "com.flowfoundation.wallet.securekey"
         private static var userKey: String = "user.keystore"
 
         public static func config(service: String) throws {
@@ -27,12 +27,18 @@ public extension WallectSecureEnclave {
 
         public static func store(key: String, value: Data) throws {
             var userList = (try? fetch()) ?? []
-            let targetModel = userList.first { info in
+            var targetModel = userList.first { info in
                 info.uniq == key
             }
             if targetModel == nil {
                 let newModel = StoreInfo(uniq: key, publicKey: value)
                 userList.insert(newModel, at: 0)
+            }else {
+                let index = userList.firstIndex { $0.uniq == key }
+                if let index = index {
+                    targetModel?.publicKey = value
+                    userList[index] = targetModel!
+                }
             }
             try? Store.store(list: userList)
         }
