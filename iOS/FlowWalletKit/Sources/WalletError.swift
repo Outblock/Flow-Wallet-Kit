@@ -9,6 +9,7 @@ import Foundation
 
 public enum WalletError: Error {
     case emptyKeychain
+    case emptyKey
     case unsupportHashAlgorithm
     case unsupportSignatureAlgorithm
     case initChaChapolyFailed

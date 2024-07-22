@@ -39,12 +39,12 @@ public class SPWallet: WalletProtocol {
         }
         
         let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        try keychain.set(encrypted, key: id, ignoringAttributeSynchronizable: !sync)
+        try FlowWalletKit.shared.storage.set(id, value: encrypted)
         return SPWallet(hdWallet: hdWallet)
     }
     
     public static func get(id: String, password: String) throws -> SPWallet {
-        guard let data = try keychain.getData(id) else {
+        guard let data = try FlowWalletKit.shared.storage.get(id) else {
             throw WalletError.emptyKeychain
         }
         
@@ -72,7 +72,7 @@ public class SPWallet: WalletProtocol {
         }
         
         let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        try keychain.set(encrypted, key: id, ignoringAttributeSynchronizable: !sync)
+        try storage.set(id, value: encrypted)
     }
     
     public static func restore(secret: String) throws -> SPWallet {
