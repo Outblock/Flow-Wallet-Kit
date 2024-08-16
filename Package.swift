@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", from: "4.2.2"),
         .package(url: "https://github.com/outblock/flow-swift.git", from: "0.3.2"),
-        .package(url: "https://github.com/trustwallet/wallet-core", .exact("4.0.17")),
+        .package(url: "https://github.com/Outblock/wallet-core", .branchItem("master")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.50.4"),
     ],
     targets: [
@@ -26,7 +26,7 @@ let package = Package(
                 "KeychainAccess",
                 .product(name: "Flow",package: "flow-swift"),
                 .product(name: "WalletCore", package: "wallet-core"),
-                .product(name: "SwiftProtobuf", package: "wallet-core")
+                .product(name: "WalletCoreSwiftProtobuf", package: "wallet-core")
             ],
             path: "iOS/FlowWalletKit/Sources"
         ),
