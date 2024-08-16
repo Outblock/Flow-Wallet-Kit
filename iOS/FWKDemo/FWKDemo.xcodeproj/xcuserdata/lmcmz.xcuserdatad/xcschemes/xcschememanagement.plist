@@ -9,27 +9,49 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
 		<key>Demo (Playground) 2.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>4</integer>
+		</dict>
+		<key>Demo (Playground) 3.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
+		<key>Demo (Playground) 4.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
+		<key>Demo (Playground) 5.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>7</integer>
 		</dict>
 		<key>Demo (Playground).xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>2</integer>
 		</dict>
 		<key>FWKDemo.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+<<<<<<< Updated upstream:iOS/FWKDemo/FWKDemo.xcodeproj/xcuserdata/lmcmz.xcuserdatad/xcschemes/xcschememanagement.plist
 		<key>Playground (Playground) 1.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -50,6 +72,25 @@
 			<false/>
 			<key>orderHint</key>
 			<integer>4</integer>
+=======
+		<key>WalletDemoTests.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>15F50B7D2760FAA200208A81</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>15F50B8D2760FAA200208A81</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+>>>>>>> Stashed changes:WalletDemo/WalletDemo.xcodeproj/xcuserdata/lmcmz.xcuserdatad/xcschemes/xcschememanagement.plist
 		</dict>
 	</dict>
 </dict>
