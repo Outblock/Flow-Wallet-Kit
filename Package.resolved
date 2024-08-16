@@ -1,14 +1,34 @@
 {
-  "pins" : [
-    {
-      "identity" : "keychainaccess",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
-      "state" : {
-        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
-        "version" : "4.2.2"
+  "object": {
+    "pins": [
+      {
+        "package": "BigInt",
+        "repositoryURL": "https://github.com/attaswift/BigInt.git",
+        "state": {
+          "branch": null,
+          "revision": "793a7fac0bfc318e85994bf6900652e827aef33e",
+          "version": "5.4.1"
+        }
+      },
+      {
+        "package": "Flow",
+        "repositoryURL": "https://github.com/outblock/flow-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "123c01a5d82bfcb655c068864d747d83bf6f1d92",
+          "version": "0.3.6"
+        }
+      },
+      {
+        "package": "KeychainAccess",
+        "repositoryURL": "https://github.com/kishikawakatsumi/KeychainAccess",
+        "state": {
+          "branch": null,
+          "revision": "84e546727d66f1adc5439debad16270d0fdd04e7",
+          "version": "4.2.2"
+        }
       }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }

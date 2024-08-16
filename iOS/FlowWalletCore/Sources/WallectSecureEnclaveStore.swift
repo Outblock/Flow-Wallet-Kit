@@ -82,8 +82,8 @@ public extension WallectSecureEnclave {
     }
 
     struct StoreInfo: Codable {
-        var uniq: String
-        var publicKey: Data
+        public var uniq: String
+        public var publicKey: Data
         
         public init(uniq: String, publicKey: Data) {
             self.uniq = uniq
