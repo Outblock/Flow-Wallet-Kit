@@ -39,11 +39,11 @@
       },
       {
         "package": "WalletCore",
-        "repositoryURL": "https://github.com/trustwallet/wallet-core",
+        "repositoryURL": "https://github.com/Outblock/wallet-core",
         "state": {
-          "branch": null,
-          "revision": "cd5a27481d2181e63362cb57e2b2160506cce163",
-          "version": "4.0.17"
+          "branch": "master",
+          "revision": "24497b1e6f34f171ad421dae8699758bda09e78d",
+          "version": null
         }
       }
     ]
