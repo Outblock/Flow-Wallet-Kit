@@ -15,7 +15,7 @@ public class KeychainStorage: StorageProtocol {
     let accessGroup: String?
     var keychain: Keychain
     
-    init(service: String, label: String, synchronizable: Bool, accessGroup: String? = nil) {
+    public init(service: String, label: String, synchronizable: Bool, accessGroup: String? = nil) {
         self.service = service
         self.label = label
         self.synchronizable = synchronizable
