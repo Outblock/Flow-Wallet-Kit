@@ -40,12 +40,12 @@ public class SPWallet: WalletProtocol {
         }
         
         let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        try FlowWalletKit.shared.storage.set(id, value: encrypted)
+        try FWKManager.shared.storage.set(id, value: encrypted)
         return SPWallet(hdWallet: hdWallet)
     }
     
     public static func get(id: String, password: String) throws -> SPWallet {
-        guard let data = try FlowWalletKit.shared.storage.get(id) else {
+        guard let data = try FWKManager.shared.storage.get(id) else {
             throw WalletError.emptyKeychain
         }
         

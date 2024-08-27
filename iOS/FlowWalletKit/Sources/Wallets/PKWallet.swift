@@ -11,7 +11,7 @@ import Flow
 import KeychainAccess
 import WalletCore
 
-public class PKWallet: WalletProtocol {    
+public class PKWallet: WalletProtocol {
     public var walletType: WalletType = .privateKey
     let pk: PrivateKey
     
@@ -31,12 +31,12 @@ public class PKWallet: WalletProtocol {
         }
         
         let encrypted = try cipher.encrypt(data: pk.data)
-        try FlowWalletKit.shared.storage.set(id, value: encrypted)
+        try FWKManager.shared.storage.set(id, value: encrypted)
         return PKWallet(pk: pk)
     }
     
     public static func get(id: String, password: String) throws -> PKWallet {
-        guard let data = try FlowWalletKit.shared.storage.get(id) else {
+        guard let data = try FWKManager.shared.storage.get(id) else {
             throw WalletError.emptyKeychain
         }
         

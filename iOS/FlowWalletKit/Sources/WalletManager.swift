@@ -5,26 +5,25 @@ import WalletCore
 import Flow
 import KeychainAccess
 
-class FlowWalletKit {
-    static let shared = FlowWalletKit()
+class FWKManager {
+    static let shared = FWKManager()
     private static var config: Config?
     
     let storage: any StorageProtocol
     
     class func setup(_ config: Config){
-         FlowWalletKit.config = config
+        FWKManager.config = config
      }
      
      private init() {
-         guard let config = FlowWalletKit.config else {
+         guard let config = FWKManager.config else {
              fatalError("Error - you must call setup before accessing FlowWalletKit.shared")
          }
          self.storage = config.storage
      }
 }
 
-
-extension FlowWalletKit {
+extension FWKManager {
     
     struct Config {
         let storage: any StorageProtocol

@@ -30,12 +30,12 @@ public class SEWallet: WalletProtocol {
         }
         let key = try SecureEnclave.P256.Signing.PrivateKey()
         let encrypted = try cipher.encrypt(data: key.dataRepresentation)
-        try FlowWalletKit.shared.storage.set(id, value: encrypted)
+        try FWKManager.shared.storage.set(id, value: encrypted)
         return SEWallet(key: key)
     }
     
     public static func get(id: String, password: String) throws -> SEWallet {
-        guard let data = try FlowWalletKit.shared.storage.get(id) else {
+        guard let data = try FWKManager.shared.storage.get(id) else {
             throw WalletError.emptyKeychain
         }
         
@@ -58,7 +58,7 @@ public class SEWallet: WalletProtocol {
             throw WalletError.initChaChapolyFailed
         }
         let encrypted = try cipher.encrypt(data: key.dataRepresentation)
-        try FlowWalletKit.shared.storage.set(id, value: encrypted)
+        try FWKManager.shared.storage.set(id, value: encrypted)
     }
     
     public func publicKey(signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> Data? {

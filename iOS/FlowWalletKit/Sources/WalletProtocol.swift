@@ -43,7 +43,7 @@ public protocol WalletProtocol {
 
 extension WalletProtocol {
     public var storage: StorageProtocol {
-        FlowWalletKit.shared.storage
+        FWKManager.shared.storage
     }
     
     public func remove(id: String) throws {
