@@ -11,8 +11,8 @@ import Flow
 import KeychainAccess
 import WalletCore
 
-public class SEWallet: WalletProtocol {    
-    
+public class SEWallet: WalletProtocol {
+    public var walletType: WalletType = .secureEnclave
     public let key: SecureEnclave.P256.Signing.PrivateKey
     
     public init(key: SecureEnclave.P256.Signing.PrivateKey) {
@@ -61,9 +61,9 @@ public class SEWallet: WalletProtocol {
         try FlowWalletKit.shared.storage.set(id, value: encrypted)
     }
     
-    public func publicKey(signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> Data {
+    public func publicKey(signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> Data? {
         if signAlgo != .ECDSA_P256 {
-            throw WalletError.invaildSignatureAlgorithm
+            return nil
         }
         return key.publicKey.rawRepresentation
     }

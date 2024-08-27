@@ -17,7 +17,7 @@ protocol SymmetricEncryption {
     func decrypt(combinedData: Data) throws -> Data
 }
 
-enum EncryptionError: Swift.Error {
+enum EncryptionError: Error {
     case encryptFailed
     case initFailed
 }

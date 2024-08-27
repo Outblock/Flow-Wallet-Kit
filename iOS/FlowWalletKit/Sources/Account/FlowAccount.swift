@@ -20,10 +20,46 @@ public protocol ProxyProtocol {
     func remove(id: String) throws
 }
 
-class FlowAccount {
-    enum `Type` {
-        case key(any WalletProtocol)
-        case proxy(any ProxyProtocol)
-        case watch(Flow.Address)
+enum FlowAccountType {
+    case key(any WalletProtocol)
+    case proxy(any ProxyProtocol)
+    case watch(Flow.Address)
+    case child(Flow.Address)
+    case vm(FlowVM)
+}
+
+@MainActor
+struct FlowAccount {
+    
+    var childs: [FlowAccount]? = nil
+    
+    var hasChild: Bool {
+        !(childs?.isEmpty ?? true)
+    }
+    
+    var vm: [FlowAccount]? = nil
+    
+    var hasVM: Bool {
+        !(vm?.isEmpty ?? true)
+    }
+    
+    var address: Flow.Address
+    
+    init(address: Flow.Address) {
+        self.address = address
+        fetchChild()
+        fetchVM()
+    }
+    
+    func fetchChild() {
+        // TODO: add fetch child accounts logic
+        // Task {
+        // flow.accessAPI.executeScriptAtLatestBlock(cadence: "").decode()
+    }
+    
+    func fetchVM() {
+        // TODO: add fetch VM accounts logic
+        // Task {
+        // flow.accessAPI.executeScriptAtLatestBlock(cadence: "").decode()
     }
 }

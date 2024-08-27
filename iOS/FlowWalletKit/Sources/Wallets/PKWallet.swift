@@ -11,8 +11,8 @@ import Flow
 import KeychainAccess
 import WalletCore
 
-public class PKWallet: WalletProtocol {
-    
+public class PKWallet: WalletProtocol {    
+    public var walletType: WalletType = .privateKey
     let pk: PrivateKey
     
     init(pk: PrivateKey) {
@@ -93,7 +93,7 @@ public class PKWallet: WalletProtocol {
         return pubK.verify(signature: signature, message: message)
     }
     
-    public func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data {
+    public func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data? {
         let pubK = try getPublicKey(signAlgo: signAlgo)
         return pubK.uncompressed.data.dropFirst()
     }
@@ -120,5 +120,20 @@ public class PKWallet: WalletProtocol {
             throw WalletError.unsupportSignatureAlgorithm
         }
     }
-
 }
+
+//extension PKWallet: FlowSigner {
+//    public var address: Flow.Address {
+//        <#code#>
+//    }
+//    
+//    public var keyIndex: Int {
+//        <#code#>
+//    }
+//    
+//    public func sign(transaction: Flow.Transaction, signableData: Data) async throws -> Data {
+//        sign(data: signableData, signAlgo: sign, hashAlgo: <#T##Flow.HashAlgorithm#>)
+//    }
+//    
+//    
+//}

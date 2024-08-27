@@ -33,3 +33,31 @@ extension Flow.SignatureAlgorithm {
         }
     }
 }
+
+extension PublicKey {
+    func fromat() -> String {
+        self.uncompressed.data.hexValue.dropPrefix("04")
+    }
+}
+
+extension String {
+    func dropPrefix(_ prefix: String) -> Self {
+        if hasPrefix(prefix) {
+            return String(dropFirst(prefix.count))
+        }
+        return self
+    }
+}
+
+extension Flow.ChainID {
+    var keyIndexer: URL? {
+        switch self {
+        case .mainnet:
+            return URL(string: "https://production.key-indexer.flow.com/") ?? nil
+        case .testnet:
+            return URL(string: "https://staging.key-indexer.flow.com/") ?? nil
+        default:
+            return nil
+        }
+    }
+}

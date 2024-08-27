@@ -25,12 +25,6 @@ class FlowWalletKit {
 
 
 extension FlowWalletKit {
-    enum WalletType {
-        case secureEnclave
-        case seedPhrase
-        case privateKey
-        case keyStore
-    }
     
     struct Config {
         let storage: any StorageProtocol

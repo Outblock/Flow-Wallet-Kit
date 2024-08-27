@@ -12,8 +12,9 @@ import KeychainAccess
 import WalletCore
 
 public class SPWallet: WalletProtocol {
+    public var walletType: WalletType = .seedPhrase
     static let derivationPath = "m/44'/539'/0'/0/0"
-    static let strength: Int32 = 128
+    static let seedPhraseLength: BIP39.SeedPhraseLength = .twelve
     static let passphrase: String = ""
     
     let hdWallet: HDWallet
@@ -23,14 +24,14 @@ public class SPWallet: WalletProtocol {
     }
     
     public static func create() throws -> SPWallet {
-        guard let hdWallet = HDWallet(strength: SPWallet.strength, passphrase: "") else {
+        guard let hdWallet = HDWallet(strength: SPWallet.seedPhraseLength.strength, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
         return SPWallet(hdWallet: hdWallet)
     }
     
     public static func create(id: String, password: String, sync: Bool = true) throws -> SPWallet {
-        guard let hdWallet = HDWallet(strength: SPWallet.strength, passphrase: "") else {
+        guard let hdWallet = HDWallet(strength: SPWallet.seedPhraseLength.strength, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
         
@@ -82,7 +83,7 @@ public class SPWallet: WalletProtocol {
         return SPWallet(hdWallet: wallet)
     }
     
-    public func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data {
+    public func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data? {
         let pubK = try getPublicKey(signAlgo: signAlgo)
         return pubK.uncompressed.data.dropFirst()
     }
