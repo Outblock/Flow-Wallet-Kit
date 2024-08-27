@@ -18,7 +18,8 @@ final class FWKDemoTests: XCTestCase {
     
     func testSEWalletCreate() throws {
         
-        FlowWalletKit.setup(Config())
+        FlowWalletKit.Config(storage: KeychainStorage(service: "123", label: "test", synchronizable: false, accessGroup: ""))
+        FlowWalletKit.setup()
         
         let wallet = try SEWallet.create(id: id, password: password, sync: false)
         let reWallet = try SEWallet.get(id: id, password: password)
@@ -35,7 +36,7 @@ final class FWKDemoTests: XCTestCase {
     func testExample() throws {
         let reWallet = try SEWallet.get(id: id, password: wrongPassword)
         
-        let key = try P256.Signing.PublicKey.init(rawRepresentation: "7a57837de0f3f67903c8de330e1453e13ea3f6fc99805d8fb55e20594198df17290fdab23ffad68648dbae309c7f0fe6b9f77ce42710637b0e89ef236dda58ca".hex)
+//        let key = try P256.Signing.PublicKey.init(rawRepresentation: "7a57837de0f3f67903c8de330e1453e13ea3f6fc99805d8fb55e20594198df17290fdab23ffad68648dbae309c7f0fe6b9f77ce42710637b0e89ef236dda58ca".hexValue)
         
         print(key)
     }

@@ -24,8 +24,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Outblock/Flow-Wallet-Kit",
       "state" : {
-        "branch" : "master",
-        "revision" : "a1fc169c46100e6785fdd91917f7392651e464a0"
+        "revision" : "fc64ff8f40b05302abf00f9c278f0f31c1b04188"
       }
     },
     {
@@ -40,10 +39,10 @@
     {
       "identity" : "wallet-core",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/trustwallet/wallet-core",
+      "location" : "https://github.com/Outblock/wallet-core",
       "state" : {
-        "revision" : "cd5a27481d2181e63362cb57e2b2160506cce163",
-        "version" : "4.0.17"
+        "branch" : "master",
+        "revision" : "24497b1e6f34f171ad421dae8699758bda09e78d"
       }
     }
   ],

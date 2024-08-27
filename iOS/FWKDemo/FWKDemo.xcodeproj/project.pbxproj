@@ -620,7 +620,7 @@
 			repositoryURL = "https://github.com/Outblock/Flow-Wallet-Kit";
 			requirement = {
 				kind = revision;
-				revision = a1fc169c46100e6785fdd91917f7392651e464a0;
+				revision = fc64ff8f40b05302abf00f9c278f0f31c1b04188;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

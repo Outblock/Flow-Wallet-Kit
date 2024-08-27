@@ -8,7 +8,7 @@
 import Foundation
 import KeychainAccess
 
-class KeychainStorage: StorageProtocol {
+public class KeychainStorage: StorageProtocol {
     let service: String
     let label: String
     let synchronizable: Bool
@@ -33,23 +33,23 @@ class KeychainStorage: StorageProtocol {
         }
     }
     
-    var allKeys: [String] {
+    public var allKeys: [String] {
         keychain.allKeys()
     }
     
-    func get(_ key: String) throws -> Data? {
+    public func get(_ key: String) throws -> Data? {
         try keychain.getData(key)
     }
     
-    func remove(_ key: String) throws {
+    public func remove(_ key: String) throws {
         try keychain.remove(key)
     }
     
-    func removeAll() throws {
+    public func removeAll() throws {
         try keychain.removeAll()
     }
     
-    func set(_ key: String, value: Data) throws {
+    public func set(_ key: String, value: Data) throws {
         try keychain.set(value, key: key, ignoringAttributeSynchronizable: !synchronizable)
     }
 }
