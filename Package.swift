@@ -11,7 +11,8 @@ let package = Package(
     products: [
         .library(
             name: "FlowWalletKit",
-            targets: ["FlowWalletKit"]),
+            targets: ["FlowWalletKit"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", from: "4.2.2"),
@@ -24,9 +25,9 @@ let package = Package(
             name: "FlowWalletKit",
             dependencies: [
                 "KeychainAccess",
-                .product(name: "Flow",package: "flow-swift"),
+                .product(name: "Flow", package: "flow-swift"),
                 .product(name: "WalletCore", package: "wallet-core"),
-                .product(name: "WalletCoreSwiftProtobuf", package: "wallet-core")
+                .product(name: "WalletCoreSwiftProtobuf", package: "wallet-core"),
             ],
             path: "iOS/FlowWalletKit/Sources"
         ),
@@ -34,6 +35,6 @@ let package = Package(
             name: "FlowWalletKitTests",
             dependencies: ["FlowWalletKit"],
             path: "iOS/FlowWalletKit/Tests"
-        )
+        ),
     ]
 )

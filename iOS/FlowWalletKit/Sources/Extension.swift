@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Hao Fu on 16/1/2024.
 //
@@ -36,7 +36,7 @@ extension Flow.SignatureAlgorithm {
 
 extension PublicKey {
     func fromat() -> String {
-        self.uncompressed.data.hexValue.dropPrefix("04")
+        uncompressed.data.hexValue.dropPrefix("04")
     }
 }
 

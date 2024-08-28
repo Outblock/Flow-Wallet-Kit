@@ -1,12 +1,12 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Hao Fu on 16/1/2024.
 //
 
-import Foundation
 import Flow
+import Foundation
 
 public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case emptyKeychain
@@ -25,11 +25,11 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case incorrectKeyIndexerURL
     case keyIndexerRequestFailed
     case decodeKeyIndexerFailed
-    
+
     var errorCode: Int {
         WalletError.allCases.firstIndex(of: self) ?? -1
     }
-    
+
     public var description: String {
         "\(type(of: self)) Code: \(errorCode) - \(self)"
     }
