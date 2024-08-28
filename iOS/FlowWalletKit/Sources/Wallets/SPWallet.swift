@@ -12,6 +12,7 @@ import KeychainAccess
 import WalletCore
 
 public class SPWallet: WalletProtocol {
+    public var storage: any StorageProtocol
     public var walletType: WalletType = .seedPhrase
     static let derivationPath = "m/44'/539'/0'/0/0"
     static let seedPhraseLength: BIP39.SeedPhraseLength = .twelve
@@ -19,18 +20,19 @@ public class SPWallet: WalletProtocol {
     
     let hdWallet: HDWallet
     
-    init(hdWallet: HDWallet) {
+    init(hdWallet: HDWallet, storage: any StorageProtocol) {
         self.hdWallet = hdWallet
+        self.storage = storage
     }
     
-    public static func create() throws -> SPWallet {
+    public static func create(storage: any StorageProtocol) throws -> SPWallet {
         guard let hdWallet = HDWallet(strength: SPWallet.seedPhraseLength.strength, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
-        return SPWallet(hdWallet: hdWallet)
+        return SPWallet(hdWallet: hdWallet, storage: storage)
     }
     
-    public static func create(id: String, password: String, sync: Bool = true) throws -> SPWallet {
+    public static func create(id: String, password: String, storage: any StorageProtocol) throws -> SPWallet {
         guard let hdWallet = HDWallet(strength: SPWallet.seedPhraseLength.strength, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
@@ -40,12 +42,12 @@ public class SPWallet: WalletProtocol {
         }
         
         let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        try FWKManager.shared.storage.set(id, value: encrypted)
-        return SPWallet(hdWallet: hdWallet)
+        try storage.set(id, value: encrypted)
+        return SPWallet(hdWallet: hdWallet, storage: storage)
     }
     
-    public static func get(id: String, password: String) throws -> SPWallet {
-        guard let data = try FWKManager.shared.storage.get(id) else {
+    public static func get(id: String, password: String, storage: any StorageProtocol) throws -> SPWallet {
+        guard let data = try storage.get(id) else {
             throw WalletError.emptyKeychain
         }
         
@@ -57,7 +59,7 @@ public class SPWallet: WalletProtocol {
         guard let hdWallet = HDWallet(entropy: entropy, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
-        return SPWallet(hdWallet: hdWallet)
+        return SPWallet(hdWallet: hdWallet, storage: storage)
     }
     
     public func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool {
@@ -67,7 +69,7 @@ public class SPWallet: WalletProtocol {
         return pubK.verify(signature: signature, message: message)
     }
     
-    public func store(id: String, password: String, sync: Bool) throws {
+    public func store(id: String, password: String) throws {
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
@@ -76,11 +78,11 @@ public class SPWallet: WalletProtocol {
         try storage.set(id, value: encrypted)
     }
     
-    public static func restore(secret: String) throws -> SPWallet {
+    public static func restore(secret: String, storage: any StorageProtocol) throws -> SPWallet {
         guard let wallet = HDWallet(mnemonic: secret, passphrase: SPWallet.passphrase) else {
             throw WalletError.restoreWalletFailed
         }
-        return SPWallet(hdWallet: wallet)
+        return SPWallet(hdWallet: wallet, storage: storage)
     }
     
     public func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data? {

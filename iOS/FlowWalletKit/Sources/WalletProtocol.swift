@@ -22,14 +22,14 @@ public protocol WalletProtocol {
     
     var walletType: WalletType { get }
     
-    var storage: StorageProtocol { get }
+    var storage: StorageProtocol { set get }
     
-    static func create() throws -> Wallet
-    static func create(id: String, password: String, sync: Bool) throws -> Wallet
-    static func get(id: String, password: String) throws -> Wallet
-    static func restore(secret: Secret) throws -> Wallet
+    static func create(storage: StorageProtocol) throws -> Wallet
+    static func create(id: String, password: String, storage: StorageProtocol) throws -> Wallet
+    static func get(id: String, password: String, storage: StorageProtocol) throws -> Wallet
+    static func restore(secret: Secret, storage: StorageProtocol) throws -> Wallet
     
-    func store(id: String, password: String, sync: Bool) throws
+    func store(id: String, password: String) throws
     func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool
     func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data?
     func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data

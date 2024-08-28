@@ -5,13 +5,13 @@ import WalletCore
 import Flow
 import KeychainAccess
 
-class FWKManager {
+public class FWKManager {
     static let shared = FWKManager()
     private static var config: Config?
     
-    let storage: any StorageProtocol
+    public let storage: any StorageProtocol
     
-    class func setup(_ config: Config){
+    public class func setup(_ config: Config){
         FWKManager.config = config
      }
      
@@ -25,7 +25,7 @@ class FWKManager {
 
 extension FWKManager {
     
-    struct Config {
+    public struct Config {
         let storage: any StorageProtocol
     }
 }

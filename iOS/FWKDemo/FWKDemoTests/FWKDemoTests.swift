@@ -19,8 +19,8 @@ final class FWKDemoTests: XCTestCase {
     func testSEWalletCreate() throws {
         
         let storage = KeychainStorage(service: "123", label: "test", synchronizable: false, accessGroup: "")
-        FWKManager.KeychainStorage
-        FWKManager.setup()
+//        FWKManager.KeychainStorage
+//        FWKManager.setup()
         
         let wallet = try SEWallet.create(id: id, password: password, sync: false)
         let reWallet = try SEWallet.get(id: id, password: password)

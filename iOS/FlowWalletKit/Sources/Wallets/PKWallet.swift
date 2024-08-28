@@ -11,32 +11,56 @@ import Flow
 import KeychainAccess
 import WalletCore
 
-public class PKWallet: WalletProtocol {
+public class PKWallet: WalletProtocol {    
+    public var storage: any StorageProtocol
     public var walletType: WalletType = .privateKey
-    let pk: PrivateKey
+    public let pk: PrivateKey
     
-    init(pk: PrivateKey) {
+    init() {
+        self.pk = PrivateKey()
+        self.storage = FWKManager.shared.storage
+    }
+    
+    init(storage: any StorageProtocol) {
+        self.pk = PrivateKey()
+        self.storage = storage
+    }
+    
+    init(pk: PrivateKey, storage: any StorageProtocol) {
         self.pk = pk
+        self.storage = storage
     }
     
-    public static func create() throws -> PKWallet {
+    public static func create(storage: any StorageProtocol) throws -> PKWallet {
         let pk = PrivateKey()
-        return PKWallet(pk: pk)
+        return PKWallet(pk: pk, storage: storage)
     }
     
-    public static func create(id: String, password: String, sync: Bool) throws -> PKWallet {
+    public func create(id: String, password: String) throws -> PKWallet {
         let pk = PrivateKey()
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
         
         let encrypted = try cipher.encrypt(data: pk.data)
-        try FWKManager.shared.storage.set(id, value: encrypted)
-        return PKWallet(pk: pk)
+        try storage.set(id, value: encrypted)
+        return PKWallet(pk: pk, storage: storage)
     }
     
-    public static func get(id: String, password: String) throws -> PKWallet {
-        guard let data = try FWKManager.shared.storage.get(id) else {
+    public static func create(id: String, password: String, storage: any StorageProtocol) throws -> PKWallet {
+        let pk = PrivateKey()
+        guard let cipher = ChaChaPolyCipher(key: password) else {
+            throw WalletError.initChaChapolyFailed
+        }
+        
+        let encrypted = try cipher.encrypt(data: pk.data)
+        try storage.set(id, value: encrypted)
+        return PKWallet(pk: pk, storage: storage)
+    }
+    
+    
+    public static func get(id: String, password: String, storage: any StorageProtocol) throws -> PKWallet {
+        guard let data = try storage.get(id) else {
             throw WalletError.emptyKeychain
         }
         
@@ -50,17 +74,17 @@ public class PKWallet: WalletProtocol {
             throw WalletError.initPrivateKeyFailed
         }
         
-        return PKWallet(pk: pk)
+        return PKWallet(pk: pk, storage: storage)
     }
     
-    public static func restore(secret: Data) throws -> PKWallet {
+    public static func restore(secret: Data, storage: any StorageProtocol) throws -> PKWallet {
         guard let pk = PrivateKey(data: secret) else {
             throw WalletError.restoreWalletFailed
         }
-        return PKWallet(pk: pk)
+        return PKWallet(pk: pk, storage: storage)
     }
     
-    public static func restore(json: String, password: String) throws -> PKWallet {
+    public static func restore(json: String, password: String, storage: any StorageProtocol) throws -> PKWallet {
         guard let jsonData = json.data(using: .utf8), let passwordData = password.data(using: .utf8) else {
             throw WalletError.restoreWalletFailed
         }
@@ -74,10 +98,10 @@ public class PKWallet: WalletProtocol {
         guard let pk = PrivateKey(data: pkData) else {
             throw WalletError.restoreWalletFailed
         }
-        return PKWallet(pk: pk)
+        return PKWallet(pk: pk, storage: storage)
     }
     
-    public func store(id: String, password: String, sync: Bool) throws {
+    public func store(id: String, password: String) throws {
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
