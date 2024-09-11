@@ -29,7 +29,7 @@ enum FlowAccountType {
 }
 
 @MainActor
-public struct FlowAccount {
+public class FlowAccount {
     var childs: [FlowAccount]?
 
     var hasChild: Bool {
@@ -43,12 +43,29 @@ public struct FlowAccount {
     }
     
     public let key: any KeyProtocol
-    public var networks: [Flow.ChainID]
-    public let accounts: [Flow.ChainID: [FlowAccount]]? = nil
+    public var networks: Set<Flow.ChainID>
+    public var accounts: [Flow.ChainID: [Flow.Account]]? = nil
     
-    init(key: any KeyProtocol, networks: [Flow.ChainID] = [.mainnet, .testnet]) {
+    init(key: any KeyProtocol, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.key = key
         self.networks = networks
+    }
+    
+    func addNetwork(_ network: Flow.ChainID) {
+        networks.insert(network)
+    }
+    
+    func fetchAllNetworkAccounts() async throws -> [Flow.ChainID: [Flow.Account]] {
+        var networkAccounts =  [Flow.ChainID: [Flow.Account]]()
+        // TODO: Improve this to parallel fetch
+        for network in networks {
+            guard let accounts = try? await account(chainID: network) else {
+                continue
+            }
+            networkAccounts[network] = accounts
+        }
+        accounts = networkAccounts
+        return networkAccounts
     }
     
     func account(chainID: Flow.ChainID) async throws -> [Flow.Account] {
