@@ -55,7 +55,7 @@ public extension KeyProtocol {
         storage.allKeys
     }
     
-    static func create(_ advance: Advance, storage: StorageProtocol) throws -> Key {
+    static func create(_ advance: Advance, storage: any StorageProtocol) throws -> Key {
         throw WalletError.noImplement
     }
 

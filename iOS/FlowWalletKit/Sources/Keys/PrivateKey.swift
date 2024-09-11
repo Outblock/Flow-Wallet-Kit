@@ -12,6 +12,8 @@ import KeychainAccess
 import WalletCore
 
 public class PrivateKey: KeyProtocol {
+    public typealias Advance = String
+    
     public var storage: any StorageProtocol
     public var keyType: KeyType = .privateKey
     public let pk: WalletCore.PrivateKey
@@ -47,7 +49,7 @@ public class PrivateKey: KeyProtocol {
         return PrivateKey(pk: pk, storage: storage)
     }
 
-    public static func create(id: String, password: String, storage: any StorageProtocol) throws -> PrivateKey {
+    public static func createAndStore(id: String, password: String, storage: any StorageProtocol) throws -> PrivateKey {
         let pk = WalletCore.PrivateKey()
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
