@@ -16,7 +16,7 @@ public enum KeyType {
     case keyStore
 }
 
-public protocol KeyProtocol {
+public protocol KeyProtocol: Identifiable {
     associatedtype Key
     associatedtype Secret
     associatedtype Advance
@@ -45,6 +45,18 @@ public extension KeyProtocol {
         FWKManager.shared.storage
     }
 
+    var id: String {
+        if let data = try? publicKey(signAlgo: .ECDSA_P256) {
+            return data.hexString
+        }
+        
+        if let data = try? publicKey(signAlgo: .ECDSA_SECP256k1) {
+            return data.hexString
+        }
+        
+        return UUID().uuidString
+    }
+    
     func remove(id: String) throws {
         try storage.remove(id)
     }

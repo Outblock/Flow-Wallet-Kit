@@ -26,6 +26,7 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case incorrectKeyIndexerURL
     case keyIndexerRequestFailed
     case decodeKeyIndexerFailed
+    case loadCacheFailed
 
     var errorCode: Int {
         WalletError.allCases.firstIndex(of: self) ?? -1

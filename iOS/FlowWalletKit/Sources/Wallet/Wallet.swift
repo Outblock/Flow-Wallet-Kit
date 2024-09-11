@@ -10,6 +10,7 @@ import Foundation
 
 @MainActor
 public class Wallet: ObservableObject {
+    static let cachePrefix: String = "Accounts-"
     public let key: any KeyProtocol
     public var networks: Set<Flow.ChainID>
 
@@ -19,6 +20,14 @@ public class Wallet: ObservableObject {
     init(key: any KeyProtocol, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.key = key
         self.networks = networks
+        
+        Task {
+            do {
+                try loadCahe()
+            } catch {
+                // TODO: Handle Error
+            }
+        }
     }
 
     func addNetwork(_ network: Flow.ChainID) {
@@ -69,5 +78,24 @@ public class Wallet: ObservableObject {
 
             return result
         }
+    }
+    
+    // MARK: - Cache
+    
+    func cache() throws {
+        guard let accounts else {
+            return
+        }
+        
+        let data = try JSONEncoder().encode(accounts)
+        try key.storage.set( Wallet.cachePrefix + key.id, value: data)
+    }
+    
+    func loadCahe() throws {
+        guard let data = try key.storage.get(Wallet.cachePrefix + key.id) else {
+            throw WalletError.loadCacheFailed
+        }
+        let model = try JSONDecoder().decode([Flow.ChainID: [Flow.Account]].self, from: data)
+        self.accounts = model
     }
 }
