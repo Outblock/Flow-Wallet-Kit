@@ -1,30 +1,32 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Hao Fu on 12/9/2024.
 //
 
-import Foundation
 import Flow
+import Foundation
 
 @MainActor
-public class Wallet {
+public class Wallet: ObservableObject {
     public let key: any KeyProtocol
     public var networks: Set<Flow.ChainID>
+
+    @Published
     public var accounts: [Flow.ChainID: [Flow.Account]]? = nil
-    
+
     init(key: any KeyProtocol, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.key = key
         self.networks = networks
     }
-    
+
     func addNetwork(_ network: Flow.ChainID) {
         networks.insert(network)
     }
-    
+
     func fetchAllNetworkAccounts() async throws -> [Flow.ChainID: [Flow.Account]] {
-        var networkAccounts =  [Flow.ChainID: [Flow.Account]]()
+        var networkAccounts = [Flow.ChainID: [Flow.Account]]()
         // TODO: Improve this to parallel fetch
         for network in networks {
             guard let accounts = try? await account(chainID: network) else {
@@ -35,7 +37,7 @@ public class Wallet {
         accounts = networkAccounts
         return networkAccounts
     }
-    
+
     func account(chainID: Flow.ChainID) async throws -> [Flow.Account] {
         var accounts: [KeyIndexerResponse.Account] = []
         if let p256Key = try key.publicKey(signAlgo: .ECDSA_P256)?.hexString {

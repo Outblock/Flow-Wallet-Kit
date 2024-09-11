@@ -41,11 +41,18 @@ public class FlowAccount {
     var hasVM: Bool {
         !(vm?.isEmpty ?? true)
     }
-    
+
     let address: Flow.Address
-    
+
     init(address: Flow.Address) {
         self.address = address
     }
-    
+
+    func fetchChild() {
+        // TODO:
+    }
+
+    func fetchVM() {
+        // TODO:
+    }
 }
