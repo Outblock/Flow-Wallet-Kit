@@ -8,7 +8,7 @@
 import Foundation
 import WalletCore
 
-public class BIP39 {
+public enum BIP39 {
     enum SeedPhraseLength: Int {
         case twelve = 12
         case fifteen = 15

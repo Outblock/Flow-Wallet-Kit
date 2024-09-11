@@ -13,7 +13,7 @@ import WalletCore
 
 public class PrivateKey: KeyProtocol {
     public typealias Advance = String
-    
+
     public var storage: any StorageProtocol
     public var keyType: KeyType = .privateKey
     public let pk: WalletCore.PrivateKey

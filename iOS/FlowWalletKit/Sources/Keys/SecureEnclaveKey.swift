@@ -11,9 +11,9 @@ import Foundation
 import KeychainAccess
 import WalletCore
 
-public class SecureEnclaveKey: KeyProtocol {    
+public class SecureEnclaveKey: KeyProtocol {
     public typealias Advance = String
-    
+
     public var keyType: KeyType = .secureEnclave
     public let key: SecureEnclave.P256.Signing.PrivateKey
     public var storage: any StorageProtocol

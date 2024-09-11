@@ -5,14 +5,14 @@
 //  Created by Hao Fu on 16/1/2024.
 //
 
+import CryptoKit
 import Flow
 import WalletCore
-import CryptoKit
 
 extension Flow.HashAlgorithm {
     func hash(data: Data) throws -> Data {
         switch self {
-        case .SHA2_256:            
+        case .SHA2_256:
             return Data(SHA256.hash(data: data))
         case .SHA3_256:
             return Hash.sha3_256(data: data)

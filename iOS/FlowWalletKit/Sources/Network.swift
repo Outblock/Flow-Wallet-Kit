@@ -21,7 +21,7 @@ struct KeyIndexerResponse: Codable {
 
 enum Network {
     static func findAccountByKey(publicKey: String, chainID: Flow.ChainID) async throws -> [KeyIndexerResponse.Account] {
-        guard let url = URL(string: "\(chainID.keyIndexer?.absoluteString ?? "")\(publicKey)") else {
+        guard let host = chainID.keyIndexer?.absoluteString, let url = URL(string: host + publicKey) else {
             throw WalletError.incorrectKeyIndexerURL
         }
         let urlRequest = URLRequest(url: url)

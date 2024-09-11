@@ -20,7 +20,7 @@ public protocol KeyProtocol {
     associatedtype Key
     associatedtype Secret
     associatedtype Advance
-    
+
     var keyType: KeyType { get }
 
     var storage: StorageProtocol { set get }
@@ -54,8 +54,8 @@ public extension KeyProtocol {
     func allKeys() -> [String] {
         storage.allKeys
     }
-    
-    static func create(_ advance: Advance, storage: any StorageProtocol) throws -> Key {
+
+    static func create(_: Advance, storage _: any StorageProtocol) throws -> Key {
         throw WalletError.noImplement
     }
 
