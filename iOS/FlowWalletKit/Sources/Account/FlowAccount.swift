@@ -29,7 +29,7 @@ enum FlowAccountType {
 }
 
 @MainActor
-struct FlowAccount {
+public struct FlowAccount {
     var childs: [FlowAccount]?
 
     var hasChild: Bool {
@@ -41,24 +41,46 @@ struct FlowAccount {
     var hasVM: Bool {
         !(vm?.isEmpty ?? true)
     }
+    
+    public let key: any KeyProtocol
+    public var networks: [Flow.ChainID]
+    public let accounts: [Flow.ChainID: [FlowAccount]]? = nil
+    
+    init(key: any KeyProtocol, networks: [Flow.ChainID] = [.mainnet, .testnet]) {
+        self.key = key
+        self.networks = networks
+    }
+    
+    func account(chainID: Flow.ChainID) async throws -> [Flow.Account] {
+        var accounts: [KeyIndexerResponse.Account] = []
+        if let p256Key = try key.publicKey(signAlgo: .ECDSA_P256)?.hexString {
+            async let p256KeyRequest = Network.findAccountByKey(publicKey: p256Key, chainID: chainID)
+            try await accounts += p256KeyRequest
+        }
 
-    var address: Flow.Address
+        if let secp256k1Key = try key.publicKey(signAlgo: .ECDSA_SECP256k1)?.hexString {
+            async let secp256k1KeyRequest = Network.findAccountByKey(publicKey: secp256k1Key, chainID: chainID)
+            try await accounts += secp256k1KeyRequest
+        }
 
-    init(address: Flow.Address) {
-        self.address = address
-        fetchChild()
-        fetchVM()
+        let addresses = Set(accounts).compactMap { Flow.Address(hex: $0.address) }
+        return try await fetchAccounts(addresses: addresses)
     }
 
-    func fetchChild() {
-        // TODO: add fetch child accounts logic
-        // Task {
-        // flow.accessAPI.executeScriptAtLatestBlock(cadence: "").decode()
-    }
+    func fetchAccounts(addresses: [Flow.Address]) async throws -> [Flow.Account] {
+        try await withThrowingTaskGroup(of: Flow.Account.self) { group in
 
-    func fetchVM() {
-        // TODO: add fetch VM accounts logic
-        // Task {
-        // flow.accessAPI.executeScriptAtLatestBlock(cadence: "").decode()
+            addresses.forEach { address in
+                group.addTask { try await Flow.shared.accessAPI.getAccountAtLatestBlock(address: address) }
+            }
+
+            var result = [Flow.Account]()
+
+            for try await image in group {
+                result.append(image)
+            }
+
+            return result
+        }
     }
 }
