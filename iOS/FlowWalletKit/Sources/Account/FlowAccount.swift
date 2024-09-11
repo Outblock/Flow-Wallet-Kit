@@ -21,7 +21,7 @@ public protocol ProxyProtocol {
 }
 
 enum FlowAccountType {
-    case key(any WalletProtocol)
+    case key(any KeyProtocol)
     case proxy(any ProxyProtocol)
     case watch(Flow.Address)
     case child(Flow.Address)

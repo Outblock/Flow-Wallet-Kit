@@ -8,6 +8,7 @@
 import CryptoKit
 import FlowWalletKit
 @testable import FWKDemo
+import WalletCore
 import XCTest
 
 final class FWKDemoTests: XCTestCase {
@@ -16,24 +17,46 @@ final class FWKDemoTests: XCTestCase {
     let wrongPassword = "wrong_password"
     var storage = KeychainStorage(service: "io.outblock.FWKDemo", label: "FWKDemo Unit Test", synchronizable: false)
     
-    func testSEWalletCreate() throws {
-        let wallet = try SEWallet.create(id: id, password: password, storage: storage)
-        let reWallet = try SEWallet.get(id: id, password: password, storage: storage)
-        XCTAssertEqual(try wallet.publicKey(), try reWallet.publicKey())
-    }
-
-    func testSEWalletStore() throws {
-        let wallet = try SEWallet.create(storage: storage)
-        try wallet.store(id: id, password: password)
-        let reWallet = try SEWallet.get(id: id, password: password, storage: storage)
-        XCTAssertEqual(try wallet.publicKey(), try reWallet.publicKey())
-    }
+//    func testSecureEnclaveKeyCreate() throws {
+//        let wallet = try SecureEnclaveKey.create(id: id, password: password, storage: storage)
+//        let reWallet = try SecureEnclaveKey.get(id: id, password: password, storage: storage)
+//        XCTAssertEqual(try wallet.publicKey(), try reWallet.publicKey())
+//    }
+//
+//    func testSecureEnclaveKeyStore() throws {
+//        let wallet = try SecureEnclaveKey.create(storage: storage)
+//        try wallet.store(id: id, password: password)
+//        let reWallet = try SecureEnclaveKey.get(id: id, password: password, storage: storage)
+//        XCTAssertEqual(try wallet.publicKey(), try reWallet.publicKey())
+//    }
 
     func testExample() throws {
-        let reWallet = try SEWallet.get(id: id, password: wrongPassword, storage: storage)
+        let hdWallet = HDWallet(strength: 128, passphrase: "123")!
+        print(hdWallet.mnemonic)
+        
+        let pk = hdWallet.getKeyByCurve(curve: .secp256k1, derivationPath: "m/44'/60'/0'/0/0")
+        let pubK2 = pk.getPublicKeySecp256k1(compressed: false)
+        
+        print("pk -> \(pk.data.hexValue)")
+        print("pubK2 -> \(pubK2.data.hexValue)")
+        
+        let password = "password".data(using: .utf8)!
+        let key = StoredKey.importPrivateKey(privateKey: pk.data, name: "flow test", password: password, coin: .ethereum)!
+        let jsonData = key.exportJSON()!
+        
+        print("jsonData -> \(String(data: jsonData, encoding: .utf8)!)")
+        
+//        let vKey = StoredKey.importJSON(json: jsonData)!
+//        let hdWallet2 = vKey.wallet(password: password)!
+//        
+//        XCTAssertEqual(hdWallet.mnemonic, hdWallet2.mnemonic)
+    }
+}
 
-//        let key = try P256.Signing.PublicKey.init(rawRepresentation: "7a57837de0f3f67903c8de330e1453e13ea3f6fc99805d8fb55e20594198df17290fdab23ffad68648dbae309c7f0fe6b9f77ce42710637b0e89ef236dda58ca".hexValue)
 
-//        print(key)
+public extension Data {
+    /// Convert data to hex string
+    var hexValue: String {
+        return reduce("") { $0 + String(format: "%02x", $1) }
     }
 }

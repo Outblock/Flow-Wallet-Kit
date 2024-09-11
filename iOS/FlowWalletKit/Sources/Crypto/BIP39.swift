@@ -8,10 +8,11 @@
 import Foundation
 import WalletCore
 
-class BIP39 {
+public class BIP39 {
     enum SeedPhraseLength: Int {
         case twelve = 12
         case fifteen = 15
+        case twentyFour = 24
 
         var strength: Int32 {
             switch self {
@@ -19,6 +20,8 @@ class BIP39 {
                 return 128
             case .fifteen:
                 return 160
+            case .twentyFour:
+                return 256
             }
         }
     }

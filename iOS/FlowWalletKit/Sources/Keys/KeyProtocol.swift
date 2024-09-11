@@ -9,25 +9,27 @@ import Flow
 import Foundation
 import KeychainAccess
 
-public enum WalletType {
+public enum KeyType {
     case secureEnclave
     case seedPhrase
     case privateKey
     case keyStore
 }
 
-public protocol WalletProtocol {
-    associatedtype Wallet
+public protocol KeyProtocol {
+    associatedtype Key
     associatedtype Secret
-
-    var walletType: WalletType { get }
+    associatedtype Advance
+    
+    var keyType: KeyType { get }
 
     var storage: StorageProtocol { set get }
 
-    static func create(storage: StorageProtocol) throws -> Wallet
-    static func create(id: String, password: String, storage: StorageProtocol) throws -> Wallet
-    static func get(id: String, password: String, storage: StorageProtocol) throws -> Wallet
-    static func restore(secret: Secret, storage: StorageProtocol) throws -> Wallet
+    static func create(_ advance: Advance, storage: StorageProtocol) throws -> Key
+    static func create(storage: StorageProtocol) throws -> Key
+    static func createAndStore(id: String, password: String, storage: StorageProtocol) throws -> Key
+    static func get(id: String, password: String, storage: StorageProtocol) throws -> Key
+    static func restore(secret: Secret, storage: StorageProtocol) throws -> Key
 
     func store(id: String, password: String) throws
     func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool
@@ -40,7 +42,7 @@ public protocol WalletProtocol {
     func account(chainID: Flow.ChainID) async throws -> [Flow.Account]
 }
 
-public extension WalletProtocol {
+public extension KeyProtocol {
     var storage: StorageProtocol {
         FWKManager.shared.storage
     }
@@ -51,6 +53,10 @@ public extension WalletProtocol {
 
     func allKeys() -> [String] {
         storage.allKeys
+    }
+    
+    static func create(_ advance: Advance, storage: StorageProtocol) throws -> Key {
+        throw WalletError.noImplement
     }
 
     func account(chainID: Flow.ChainID) async throws -> [Flow.Account] {

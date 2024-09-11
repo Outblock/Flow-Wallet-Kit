@@ -11,8 +11,10 @@ import Foundation
 import KeychainAccess
 import WalletCore
 
-public class SEWallet: WalletProtocol {
-    public var walletType: WalletType = .secureEnclave
+public class SecureEnclaveKey: KeyProtocol {    
+    public typealias Advance = String
+    
+    public var keyType: KeyType = .secureEnclave
     public let key: SecureEnclave.P256.Signing.PrivateKey
     public var storage: any StorageProtocol
 
@@ -21,22 +23,22 @@ public class SEWallet: WalletProtocol {
         self.storage = storage
     }
 
-    public static func create(storage: any StorageProtocol) throws -> SEWallet {
+    public static func create(storage: any StorageProtocol) throws -> SecureEnclaveKey {
         let key = try SecureEnclave.P256.Signing.PrivateKey()
-        return SEWallet(key: key, storage: storage)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
 
-    public static func create(id: String, password: String, storage: any StorageProtocol) throws -> SEWallet {
+    public static func createAndStore(id: String, password: String, storage: any StorageProtocol) throws -> SecureEnclaveKey {
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
         let key = try SecureEnclave.P256.Signing.PrivateKey()
         let encrypted = try cipher.encrypt(data: key.dataRepresentation)
         try storage.set(id, value: encrypted)
-        return SEWallet(key: key, storage: storage)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
 
-    public static func get(id: String, password: String, storage: any StorageProtocol) throws -> SEWallet {
+    public static func get(id: String, password: String, storage: any StorageProtocol) throws -> SecureEnclaveKey {
         guard let data = try storage.get(id) else {
             throw WalletError.emptyKeychain
         }
@@ -47,12 +49,12 @@ public class SEWallet: WalletProtocol {
 
         let pk = try cipher.decrypt(combinedData: data)
         let key = try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: pk)
-        return SEWallet(key: key, storage: storage)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
 
-    public static func restore(secret: Data, storage: any StorageProtocol) throws -> SEWallet {
+    public static func restore(secret: Data, storage: any StorageProtocol) throws -> SecureEnclaveKey {
         let key = try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: secret)
-        return SEWallet(key: key, storage: storage)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
 
     public func store(id: String, password: String) throws {

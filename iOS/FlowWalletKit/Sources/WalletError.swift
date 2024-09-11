@@ -9,6 +9,7 @@ import Flow
 import Foundation
 
 public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
+    case noImplement
     case emptyKeychain
     case emptyKey
     case unsupportHashAlgorithm
