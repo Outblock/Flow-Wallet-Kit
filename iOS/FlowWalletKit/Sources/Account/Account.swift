@@ -16,19 +16,23 @@ public protocol ProxyProtocol {
 }
 
 @MainActor
-public class FlowAccount {
-    var childs: [FlowAccount]?
+public class Account {
+    var childs: [Account]?
 
     var hasChild: Bool {
         !(childs?.isEmpty ?? true)
     }
 
-    var vm: [FlowAccount]?
+    var vm: [Account]?
 
     var hasVM: Bool {
         !(vm?.isEmpty ?? true)
     }
 
+    var canSign: Bool {
+        !(key == nil)
+    }
+    
     let account: Flow.Account
     let key: (any KeyProtocol)?
     
@@ -71,7 +75,7 @@ public class FlowAccount {
     }
 }
 
-extension FlowAccount: FlowSigner {
+extension Account: FlowSigner {
     public var address: Flow.Address {
         account.address
     }
