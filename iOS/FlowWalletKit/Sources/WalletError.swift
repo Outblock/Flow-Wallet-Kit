@@ -12,6 +12,7 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case noImplement
     case emptyKeychain
     case emptyKey
+    case emptySignKey
     case unsupportHashAlgorithm
     case unsupportSignatureAlgorithm
     case initChaChapolyFailed
@@ -20,6 +21,7 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case restoreWalletFailed
     case invaildSignatureAlgorithm
     case invaildPassword
+    case invaildPrivateKey
     case invaildKeyStorePassword
     case signError
     case initPublicKeyFailed
@@ -27,7 +29,8 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case keyIndexerRequestFailed
     case decodeKeyIndexerFailed
     case loadCacheFailed
-
+    case invaildWalletType
+    
     var errorCode: Int {
         WalletError.allCases.firstIndex(of: self) ?? -1
     }

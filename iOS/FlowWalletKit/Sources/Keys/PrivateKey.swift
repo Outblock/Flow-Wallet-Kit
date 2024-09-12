@@ -91,14 +91,14 @@ public class PrivateKey: KeyProtocol {
         }
 
         let storedKey = StoredKey.importJSON(json: jsonData)
-
         guard let pkData = storedKey?.decryptPrivateKey(password: passwordData) else {
             throw WalletError.invaildKeyStorePassword
         }
 
         guard let pk = WalletCore.PrivateKey(data: pkData) else {
-            throw WalletError.restoreWalletFailed
+            throw WalletError.invaildPrivateKey
         }
+        
         return PrivateKey(pk: pk, storage: storage)
     }
 

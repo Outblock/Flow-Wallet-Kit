@@ -12,20 +12,7 @@ public protocol ProxyProtocol {
     associatedtype Wallet
 
     static func get(id: String) throws -> Wallet
-
-    func store(id: String, password: String, sync: Bool) throws
-    func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool
-    func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data
     func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data
-    func remove(id: String) throws
-}
-
-enum FlowAccountType {
-    case key(any KeyProtocol)
-    case proxy(any ProxyProtocol)
-    case watch(Flow.Address)
-    case child(Flow.Address)
-    case vm(FlowVM)
 }
 
 @MainActor
@@ -42,10 +29,37 @@ public class FlowAccount {
         !(vm?.isEmpty ?? true)
     }
 
-    let address: Flow.Address
-
-    init(address: Flow.Address) {
-        self.address = address
+    let account: Flow.Account
+    let key: (any KeyProtocol)?
+    
+    init(account: Flow.Account, key: (any KeyProtocol)?) {
+        self.account = account
+        self.key = key
+    }
+    
+    func findKeyInAccount() -> [Flow.AccountKey]? {
+        guard let key else {
+            return nil
+        }
+        
+        do {
+            var keys: [Flow.AccountKey] = []
+            if let p256 = try key.publicKey(signAlgo: .ECDSA_P256) {
+                let p256Keys = account.keys.filter { $0.weight > 1000 }.filter{ $0.publicKey.data == p256 }
+                keys += p256Keys
+            }
+            
+            if let secpKey = try key.publicKey(signAlgo: .ECDSA_SECP256k1) {
+                let secpKeys = account.keys.filter { $0.weight > 1000 }.filter{ $0.publicKey.data == secpKey }
+                keys += secpKeys
+            }
+            
+            return keys
+            
+        } catch {
+            // TODO: Add error handling
+            return nil
+        }
     }
 
     func fetchChild() {
@@ -54,5 +68,23 @@ public class FlowAccount {
 
     func fetchVM() {
         // TODO:
+    }
+}
+
+extension FlowAccount: FlowSigner {
+    public var address: Flow.Address {
+        account.address
+    }
+    
+    public var keyIndex: Int {
+        findKeyInAccount()?.first?.index ?? 0
+    }
+    
+    public func sign(transaction: Flow.Transaction, signableData: Data) async throws -> Data {
+        guard let key, let signKey = findKeyInAccount()?.first else {
+            throw WalletError.emptySignKey
+        }
+        
+        return try key.sign(data: signableData, signAlgo: signKey.signAlgo, hashAlgo: signKey.hashAlgo)
     }
 }
