@@ -30,6 +30,15 @@ public enum WalletType {
             return idPrefix + address.hex
         }
     }
+    
+    var key: (any KeyProtocol)? {
+        switch self {
+        case let .key(key):
+            return key
+        default:
+            return nil
+        }
+    }
 }
 
 @MainActor
@@ -39,7 +48,9 @@ public class Wallet: ObservableObject {
     public var networks: Set<Flow.ChainID>
 
     @Published
-    public var accounts: [Flow.ChainID: [Flow.Account]]? = nil
+    public var accounts: [Flow.ChainID: [Account]]? = nil
+    
+    var flowAccounts: [Flow.ChainID: [Flow.Account]]? = nil
 
     init(type: WalletType, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.type = type
@@ -60,16 +71,19 @@ public class Wallet: ObservableObject {
         networks.insert(network)
     }
 
-    public func fetchAllNetworkAccounts() async throws -> [Flow.ChainID: [Flow.Account]] {
-        var networkAccounts = [Flow.ChainID: [Flow.Account]]()
+    public func fetchAllNetworkAccounts() async throws -> [Flow.ChainID: [Account]] {
+        var flowAccounts = [Flow.ChainID: [Flow.Account]]()
+        var networkAccounts = [Flow.ChainID: [Account]]()
         // TODO: Improve this to parallel fetch
         for network in networks {
             guard let accounts = try? await account(chainID: network) else {
                 continue
             }
-            networkAccounts[network] = accounts
+            flowAccounts[network] = accounts
+            networkAccounts[network] = accounts.compactMap{ Account(account: $0, key: type.key) }
         }
-        accounts = networkAccounts
+        self.accounts = networkAccounts
+        self.flowAccounts = flowAccounts
         return networkAccounts
     }
 
@@ -117,11 +131,11 @@ public class Wallet: ObservableObject {
     
     public func cache() throws {
         // TODO: Handle other type
-        guard let accounts, case let .key(key) = type else {
+        guard let flowAccounts, case let .key(key) = type else {
             return
         }
         
-        let data = try JSONEncoder().encode(accounts)
+        let data = try JSONEncoder().encode(flowAccounts)
         try key.storage.set( Wallet.cachePrefix + type.id, value: data)
     }
     
@@ -131,6 +145,13 @@ public class Wallet: ObservableObject {
             throw WalletError.loadCacheFailed
         }
         let model = try JSONDecoder().decode([Flow.ChainID: [Flow.Account]].self, from: data)
-        self.accounts = model
+        self.flowAccounts = model
+        
+        accounts = [Flow.ChainID: [Account]]()
+        for network in model.keys {
+            if let acc = model[network] {
+                accounts?[network] = acc.compactMap{ Account(account: $0, key: type.key) }
+            }
+        }
     }
 }
