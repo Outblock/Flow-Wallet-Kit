@@ -25,9 +25,9 @@ public enum WalletType {
     var id: String {
         switch self {
         case let .key(key):
-            return idPrefix + key.id
+            return [idPrefix, key.id].joined(separator: "/")
         case let .watch(address):
-            return idPrefix + address.hex
+            return [idPrefix, address.hex].joined(separator: "/")
         }
     }
     
@@ -52,6 +52,10 @@ public class Wallet: ObservableObject {
     
     var flowAccounts: [Flow.ChainID: [Flow.Account]]? = nil
 
+    var cacheId: String {
+        [Wallet.cachePrefix, type.id].joined(separator: "/")
+    }
+    
     init(type: WalletType, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.type = type
         self.networks = networks
@@ -126,6 +130,7 @@ public class Wallet: ObservableObject {
             return result
         }
     }
+
     
     // MARK: - Cache
     
@@ -136,12 +141,12 @@ public class Wallet: ObservableObject {
         }
         
         let data = try JSONEncoder().encode(flowAccounts)
-        try key.storage.set( Wallet.cachePrefix + type.id, value: data)
+        try key.storage.set(cacheId, value: data)
     }
     
     public func loadCahe() throws {
         // TODO: Handle other type
-        guard case let .key(key) = type, let data = try key.storage.get(Wallet.cachePrefix + key.id) else {
+        guard case let .key(key) = type, let data = try key.storage.get(cacheId) else {
             throw WalletError.loadCacheFailed
         }
         let model = try JSONDecoder().decode([Flow.ChainID: [Flow.Account]].self, from: data)
