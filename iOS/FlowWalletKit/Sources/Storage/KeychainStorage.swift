@@ -25,11 +25,11 @@ public class KeychainStorage: StorageProtocol {
                 .label(label)
                 .accessibility(.afterFirstUnlock)
                 .synchronizable(synchronizable)
-//                .authenticationUI(.allow)
         } else {
             keychain = Keychain(service: service)
                 .label(label)
                 .synchronizable(synchronizable)
+                .accessibility(.afterFirstUnlock)
         }
     }
 
