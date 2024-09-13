@@ -46,7 +46,7 @@ public class Wallet: ObservableObject {
         self.networks = networks
     }
     
-    func fetchAccount() {
+    public func fetchAccount() {
         Task {
             do {
                 try loadCahe()
@@ -56,11 +56,11 @@ public class Wallet: ObservableObject {
         }
     }
 
-    func addNetwork(_ network: Flow.ChainID) {
+    public func addNetwork(_ network: Flow.ChainID) {
         networks.insert(network)
     }
 
-    func fetchAllNetworkAccounts() async throws -> [Flow.ChainID: [Flow.Account]] {
+    public func fetchAllNetworkAccounts() async throws -> [Flow.ChainID: [Flow.Account]] {
         var networkAccounts = [Flow.ChainID: [Flow.Account]]()
         // TODO: Improve this to parallel fetch
         for network in networks {
@@ -73,7 +73,7 @@ public class Wallet: ObservableObject {
         return networkAccounts
     }
 
-    func account(chainID: Flow.ChainID) async throws -> [Flow.Account] {
+    public func account(chainID: Flow.ChainID) async throws -> [Flow.Account] {
         guard case let .key(key) = type else {
             if case let .watch(address) = type {
                 return [try await flow.getAccountAtLatestBlock(address: address)]
@@ -96,7 +96,7 @@ public class Wallet: ObservableObject {
         return try await fetchAccounts(addresses: addresses)
     }
 
-    func fetchAccounts(addresses: [Flow.Address]) async throws -> [Flow.Account] {
+    public func fetchAccounts(addresses: [Flow.Address]) async throws -> [Flow.Account] {
         try await withThrowingTaskGroup(of: Flow.Account.self) { group in
 
             addresses.forEach { address in
@@ -115,7 +115,7 @@ public class Wallet: ObservableObject {
     
     // MARK: - Cache
     
-    func cache() throws {
+    public func cache() throws {
         // TODO: Handle other type
         guard let accounts, case let .key(key) = type else {
             return
@@ -125,7 +125,7 @@ public class Wallet: ObservableObject {
         try key.storage.set( Wallet.cachePrefix + type.id, value: data)
     }
     
-    func loadCahe() throws {
+    public func loadCahe() throws {
         // TODO: Handle other type
         guard case let .key(key) = type, let data = try key.storage.get(Wallet.cachePrefix + key.id) else {
             throw WalletError.loadCacheFailed
