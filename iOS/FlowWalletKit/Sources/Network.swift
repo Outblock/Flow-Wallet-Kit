@@ -8,19 +8,19 @@
 import Flow
 import Foundation
 
-struct KeyIndexerResponse: Codable {
+public struct KeyIndexerResponse: Codable {
     let publicKey: String
     let accounts: [Account]
 
-    struct Account: Codable, Hashable {
-        let address: String
-        let keyId: Int
-        let weight: Int
+    public struct Account: Codable, Hashable {
+        public let address: String
+        public let keyId: Int
+        public let weight: Int
     }
 }
 
-enum Network {
-    static func findAccountByKey(publicKey: String, chainID: Flow.ChainID) async throws -> [KeyIndexerResponse.Account] {
+public enum Network {
+    public static func findAccountByKey(publicKey: String, chainID: Flow.ChainID) async throws -> [KeyIndexerResponse.Account] {
         guard let host = chainID.keyIndexer?.absoluteString, let url = URL(string: host + publicKey) else {
             throw WalletError.incorrectKeyIndexerURL
         }
