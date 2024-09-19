@@ -32,34 +32,34 @@ public class Account {
     var canSign: Bool {
         !(key == nil)
     }
-    
+
     let account: Flow.Account
     let key: (any KeyProtocol)?
-    
+
     init(account: Flow.Account, key: (any KeyProtocol)?) {
         self.account = account
         self.key = key
     }
-    
+
     func findKeyInAccount() -> [Flow.AccountKey]? {
         guard let key else {
             return nil
         }
-        
+
         do {
             var keys: [Flow.AccountKey] = []
             if let p256 = try key.publicKey(signAlgo: .ECDSA_P256) {
-                let p256Keys = account.keys.filter { $0.weight > 1000 }.filter{ $0.publicKey.data == p256 }
+                let p256Keys = account.keys.filter { $0.weight > 1000 }.filter { $0.publicKey.data == p256 }
                 keys += p256Keys
             }
-            
+
             if let secpKey = try key.publicKey(signAlgo: .ECDSA_SECP256k1) {
-                let secpKeys = account.keys.filter { $0.weight > 1000 }.filter{ $0.publicKey.data == secpKey }
+                let secpKeys = account.keys.filter { $0.weight > 1000 }.filter { $0.publicKey.data == secpKey }
                 keys += secpKeys
             }
-            
+
             return keys
-            
+
         } catch {
             // TODO: Add error handling
             return nil
@@ -79,16 +79,16 @@ extension Account: FlowSigner {
     public var address: Flow.Address {
         account.address
     }
-    
+
     public var keyIndex: Int {
         findKeyInAccount()?.first?.index ?? 0
     }
-    
-    public func sign(transaction: Flow.Transaction, signableData: Data) async throws -> Data {
+
+    public func sign(transaction _: Flow.Transaction, signableData: Data) async throws -> Data {
         guard let key, let signKey = findKeyInAccount()?.first else {
             throw WalletError.emptySignKey
         }
-        
+
         return try key.sign(data: signableData, signAlgo: signKey.signAlgo, hashAlgo: signKey.hashAlgo)
     }
 }

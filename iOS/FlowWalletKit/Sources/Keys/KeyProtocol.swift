@@ -49,14 +49,14 @@ public extension KeyProtocol {
         if let data = try? publicKey(signAlgo: .ECDSA_P256) {
             return data.hexString
         }
-        
+
         if let data = try? publicKey(signAlgo: .ECDSA_SECP256k1) {
             return data.hexString
         }
-        
+
         return UUID().uuidString
     }
-    
+
     func remove(id: String) throws {
         try storage.remove(id)
     }

@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", from: "4.2.2"),
-        .package(url: "https://github.com/outblock/flow-swift.git", from: "0.3.2"),
+        .package(url: "https://github.com/outblock/flow-swift.git", .revisionItem("5888bf6012f3ea87fbdb07905e6d4817d421ffcb")),
         .package(url: "https://github.com/Outblock/wallet-core", .branchItem("master")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.50.4"),
     ],

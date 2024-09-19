@@ -12,7 +12,7 @@ public enum WalletType {
     case key(any KeyProtocol)
 //    case proxy(any ProxyProtocol)
     case watch(Flow.Address)
-    
+
     var idPrefix: String {
         switch self {
         case .key:
@@ -21,7 +21,7 @@ public enum WalletType {
             return "Watch"
         }
     }
-    
+
     var id: String {
         switch self {
         case let .key(key):
@@ -30,7 +30,7 @@ public enum WalletType {
             return [idPrefix, address.hex].joined(separator: "/")
         }
     }
-    
+
     var key: (any KeyProtocol)? {
         switch self {
         case let .key(key):
@@ -49,22 +49,25 @@ public class Wallet: ObservableObject {
 
     @Published
     public var accounts: [Flow.ChainID: [Account]]? = nil
-    
-    var flowAccounts: [Flow.ChainID: [Flow.Account]]? = nil
+
+    var flowAccounts: [Flow.ChainID: [Flow.Account]]?
 
     var cacheId: String {
         [Wallet.cachePrefix, type.id].joined(separator: "/")
     }
-    
+
     init(type: WalletType, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.type = type
         self.networks = networks
+        fetchAccount()
     }
-    
+
     public func fetchAccount() {
         Task {
             do {
                 try loadCahe()
+                try await _ = fetchAllNetworkAccounts()
+                try cache()
             } catch {
                 // TODO: Handle Error
             }
@@ -84,9 +87,9 @@ public class Wallet: ObservableObject {
                 continue
             }
             flowAccounts[network] = accounts
-            networkAccounts[network] = accounts.compactMap{ Account(account: $0, key: type.key) }
+            networkAccounts[network] = accounts.compactMap { Account(account: $0, key: type.key) }
         }
-        self.accounts = networkAccounts
+        accounts = networkAccounts
         self.flowAccounts = flowAccounts
         return networkAccounts
     }
@@ -98,7 +101,29 @@ public class Wallet: ObservableObject {
             }
             throw WalletError.invaildWalletType
         }
-        
+
+        var accounts: [Flow.Account] = []
+        if let p256Key = try key.publicKey(signAlgo: .ECDSA_P256)?.hexString {
+            async let p256KeyRequest = Network.findFlowAccountByKey(publicKey: p256Key, chainID: chainID)
+            try await accounts += p256KeyRequest
+        }
+
+        if let secp256k1Key = try key.publicKey(signAlgo: .ECDSA_SECP256k1)?.hexString {
+            async let secp256k1KeyRequest = Network.findFlowAccountByKey(publicKey: secp256k1Key, chainID: chainID)
+            try await accounts += secp256k1KeyRequest
+        }
+
+        return accounts
+    }
+
+    public func fullAccount(chainID: Flow.ChainID) async throws -> [Flow.Account] {
+        guard case let .key(key) = type else {
+            if case let .watch(address) = type {
+                return [try await flow.getAccountAtLatestBlock(address: address)]
+            }
+            throw WalletError.invaildWalletType
+        }
+
         var accounts: [KeyIndexerResponse.Account] = []
         if let p256Key = try key.publicKey(signAlgo: .ECDSA_P256)?.hexString {
             async let p256KeyRequest = Network.findAccountByKey(publicKey: p256Key, chainID: chainID)
@@ -131,31 +156,30 @@ public class Wallet: ObservableObject {
         }
     }
 
-    
     // MARK: - Cache
-    
+
     public func cache() throws {
         // TODO: Handle other type
         guard let flowAccounts, case let .key(key) = type else {
             return
         }
-        
+
         let data = try JSONEncoder().encode(flowAccounts)
         try key.storage.set(cacheId, value: data)
     }
-    
+
     public func loadCahe() throws {
         // TODO: Handle other type
         guard case let .key(key) = type, let data = try key.storage.get(cacheId) else {
             throw WalletError.loadCacheFailed
         }
         let model = try JSONDecoder().decode([Flow.ChainID: [Flow.Account]].self, from: data)
-        self.flowAccounts = model
-        
+        flowAccounts = model
+
         accounts = [Flow.ChainID: [Account]]()
         for network in model.keys {
             if let acc = model[network] {
-                accounts?[network] = acc.compactMap{ Account(account: $0, key: type.key) }
+                accounts?[network] = acc.compactMap { Account(account: $0, key: type.key) }
             }
         }
     }

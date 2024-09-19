@@ -30,7 +30,7 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case decodeKeyIndexerFailed
     case loadCacheFailed
     case invaildWalletType
-    
+
     var errorCode: Int {
         WalletError.allCases.firstIndex(of: self) ?? -1
     }

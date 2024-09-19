@@ -98,7 +98,7 @@ public class PrivateKey: KeyProtocol {
         guard let pk = WalletCore.PrivateKey(data: pkData) else {
             throw WalletError.invaildPrivateKey
         }
-        
+
         return PrivateKey(pk: pk, storage: storage)
     }
 
