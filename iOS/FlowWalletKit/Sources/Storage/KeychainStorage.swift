@@ -36,6 +36,12 @@ public class KeychainStorage: StorageProtocol {
     public var allKeys: [String] {
         keychain.allKeys()
     }
+    
+    public func findKey(_ keyword: String) throws -> [String] {
+        return allKeys.filter{ key in
+            key.contains(keyword)
+        }
+    }
 
     public func get(_ key: String) throws -> Data? {
         try keychain.getData(key)
