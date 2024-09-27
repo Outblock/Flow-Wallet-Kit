@@ -36,6 +36,6 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     }
 
     public var description: String {
-        "\(type(of: self)) Code: \(errorCode) - \(self)"
+        "\(type(of: self)) Code: \(errorCode)-\(self.rawValue)"
     }
 }

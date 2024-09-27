@@ -9,7 +9,7 @@ import Flow
 import Foundation
 import KeychainAccess
 
-public enum KeyType {
+public enum KeyType: Codable {
     case secureEnclave
     case seedPhrase
     case privateKey

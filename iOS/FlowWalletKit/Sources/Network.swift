@@ -9,8 +9,8 @@ import Flow
 import Foundation
 
 public struct KeyIndexerResponse: Codable {
-    let publicKey: String
-    let accounts: [Account]
+    public let publicKey: String
+    public let accounts: [Account]
 
     public struct Account: Codable, Hashable {
         public let address: String
@@ -59,7 +59,7 @@ extension KeyIndexerResponse {
 
 public enum Network {
     public static func findAccount(publicKey: String, chainID: Flow.ChainID) async throws -> KeyIndexerResponse {
-        guard let host = chainID.keyIndexer?.absoluteString, let url = URL(string: host + publicKey) else {
+        guard let host = chainID.keyIndexer?.absoluteString, let url = URL(string: host + "key/" + publicKey) else {
             throw WalletError.incorrectKeyIndexerURL
         }
         let urlRequest = URLRequest(url: url)

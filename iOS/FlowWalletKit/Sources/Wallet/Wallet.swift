@@ -41,7 +41,7 @@ public enum WalletType {
     }
 }
 
-@MainActor
+
 public class Wallet: ObservableObject {
     static let cachePrefix: String = "Accounts"
     public let type: WalletType
@@ -50,13 +50,13 @@ public class Wallet: ObservableObject {
     @Published
     public var accounts: [Flow.ChainID: [Account]]? = nil
 
-    var flowAccounts: [Flow.ChainID: [Flow.Account]]?
+    public var flowAccounts: [Flow.ChainID: [Flow.Account]]?
 
     var cacheId: String {
         [Wallet.cachePrefix, type.id].joined(separator: "/")
     }
 
-    init(type: WalletType, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
+    public init(type: WalletType, networks: Set<Flow.ChainID> = [.mainnet, .testnet]) {
         self.type = type
         self.networks = networks
         fetchAccount()

@@ -33,7 +33,7 @@ public class SeedPhraseKey: KeyProtocol {
 
     let hdWallet: HDWallet
 
-    init(hdWallet: HDWallet,
+    public init(hdWallet: HDWallet,
          storage: any StorageProtocol,
          derivationPath: String = "m/44'/539'/0'/0/0",
          passphrase: String = "")
