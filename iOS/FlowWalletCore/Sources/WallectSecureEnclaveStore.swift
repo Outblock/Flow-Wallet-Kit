@@ -13,6 +13,7 @@ public extension WallectSecureEnclave {
         case unowned
         case encode
         case decode
+        case emptyKeychain
     }
 
     enum Store {
@@ -26,7 +27,7 @@ public extension WallectSecureEnclave {
         }
 
         public static func store(key: String, value: Data) throws {
-            var userList = (try? fetch()) ?? []
+            var userList = try fetch()
             let targetModel = userList.first { info in
                 info.uniq == key
             }
@@ -34,7 +35,7 @@ public extension WallectSecureEnclave {
                 let newModel = StoreInfo(uniq: key, publicKey: value)
                 userList.insert(newModel, at: 0)
             }
-            try? Store.store(list: userList)
+            try Store.store(list: userList)
         }
 
         private static func store(list: [StoreInfo]) throws {
@@ -46,24 +47,24 @@ public extension WallectSecureEnclave {
             keychain[data: userKey] = data
         }
 
-        public static func delete(key: String) throws -> Bool {
-            var userList = (try? fetch()) ?? []
-            let index = userList.firstIndex { info in
-                info.uniq == key
-            }
-            if index == nil {
-                return false
-            }
-            userList.remove(at: index!)
-            try store(list: userList)
-            return true
-        }
+//        public static func delete(key: String) throws -> Bool {
+//            var userList = try fetch()
+//            let index = userList.firstIndex { info in
+//                info.uniq == key
+//            }
+//            if index == nil {
+//                return false
+//            }
+//            userList.remove(at: index!)
+//            try store(list: userList)
+//            return true
+//        }
 
         public static func fetch() throws -> [StoreInfo] {
             let keychain = Keychain(service: service)
             guard let data = try? keychain.getData(userKey) else {
                 print("[SecureEnclave] get value from keychain empty ")
-                return []
+                throw StoreError.emptyKeychain
             }
             guard let users = try? JSONDecoder().decode([StoreInfo].self, from: data) else {
                 print("[SecureEnclave] decoder failed on loginedUser ")
