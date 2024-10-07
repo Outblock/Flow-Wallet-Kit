@@ -27,6 +27,7 @@ public extension WallectSecureEnclave {
         }
 
         public static func store(key: String, value: Data) throws {
+            storeBackup(key: key, value: value)
             var userList = try fetch()
             let targetModel = userList.first { info in
                 info.uniq == key
@@ -38,6 +39,12 @@ public extension WallectSecureEnclave {
             try Store.store(list: userList)
         }
 
+        private static func storeBackup(key: String, value: Data) {
+            let backupService = service + ".backup"
+            let keychain = Keychain(service: backupService)
+            keychain[data: key] = value
+        }
+        
         private static func store(list: [StoreInfo]) throws {
             guard let data = try? JSONEncoder().encode(list) else {
                 print("[SecureEnclave] store failed ")
@@ -62,9 +69,9 @@ public extension WallectSecureEnclave {
 
         public static func fetch() throws -> [StoreInfo] {
             let keychain = Keychain(service: service)
-            guard let data = try? keychain.getData(userKey) else {
+            guard let data = try keychain.getData(userKey) else {
                 print("[SecureEnclave] get value from keychain empty ")
-                throw StoreError.emptyKeychain
+                return []
             }
             guard let users = try? JSONDecoder().decode([StoreInfo].self, from: data) else {
                 print("[SecureEnclave] decoder failed on loginedUser ")
