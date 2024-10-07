@@ -40,9 +40,44 @@ public extension WallectSecureEnclave {
         }
 
         private static func storeBackup(key: String, value: Data) {
+            if key.isEmpty || value.isEmpty {
+                return
+            }
+            let keychain = twoBackupKeychain
+            keychain[data: key] = value
+        }
+        
+        public static func migrationFromLilicoTag() {
+            let lilicoService = "io.outblock.lilico.securekey"
+            let keychain = Keychain(service: lilicoService)
+            guard let data = try? keychain.getData(userKey) else {
+                print("[SecureEnclave] migration empty ")
+                return
+            }
+            guard let users = try? JSONDecoder().decode([StoreInfo].self, from: data) else {
+                print("[SecureEnclave] decoder failed on loginedUser ")
+                return
+            }
+            for model in users {
+                try? store(key: model.uniq, value: model.publicKey)
+            }
+        }
+        
+        public static func twoBackupIfNeed() throws {
+            let userList = try fetch()
+            let twoKeys = twoBackupKeychain.allKeys()
+            if twoKeys.count == userList.count {
+                return
+            }
+            for model in userList {
+                storeBackup(key: model.uniq, value: model.publicKey)
+            }
+        }
+        
+        private static var twoBackupKeychain: Keychain {
             let backupService = service + ".backup"
             let keychain = Keychain(service: backupService)
-            keychain[data: key] = value
+            return keychain
         }
         
         private static func store(list: [StoreInfo]) throws {
