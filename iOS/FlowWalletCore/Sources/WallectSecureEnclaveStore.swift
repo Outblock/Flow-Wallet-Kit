@@ -17,7 +17,7 @@ public extension WallectSecureEnclave {
     }
 
     enum Store {
-        private static var service: String = "io.outblock.lilico.securekey"
+        private static var service: String = "com.flowfoundation.wallet.securekey"
         private static var userKey: String = "user.keystore"
 
         public static func config(service: String) throws {
