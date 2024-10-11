@@ -61,6 +61,14 @@ public struct WallectSecureEnclave {
         }
         return try sign(data: textData).hexValue
     }
+    
+    public func sign(raw data: Data) throws -> Data {
+        guard let privateKey = key.privateKey else {
+            throw SignError.privateKeyEmpty
+        }
+        return try privateKey.signature(for: data).rawRepresentation
+    }
+
 }
 
 extension WallectSecureEnclave {
