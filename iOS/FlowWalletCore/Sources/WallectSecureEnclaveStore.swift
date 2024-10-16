@@ -116,15 +116,11 @@ public extension WallectSecureEnclave {
                 print("[SecureEnclave] decoder failed on loginedUser ")
                 throw StoreError.encode
             }
-            var pre = CACurrentMediaTime()
             let validList = users.map { model in
                 var store = model
                 store.isValid = canKeySign(key: model.publicKey)
                 return store
             }
-            var cur = CACurrentMediaTime()
-            print("[SecureEnclave] \(users.count) cost time \(cur - pre) ")
-//            let result = validList.filter { $0.isShow ?? true }
             return validList
         }
         
@@ -197,6 +193,20 @@ public extension WallectSecureEnclave {
             self.publicKey = keyData
             self.isValid = isValid
             self.isShow = isShow
+        }
+    }
+}
+
+// delete after test
+extension WallectSecureEnclave.Store {
+    public static func dangerUpdate(key: String,fromValue:Data, toValue: Data) throws {
+        var userList = try fetch()
+        let index = userList.firstIndex { $0.uniq == key && $0.publicKey == fromValue }
+        if let index = index {
+            var targetModel = userList[index]
+            targetModel.publicKey = toValue
+            userList[index] = targetModel
+            try WallectSecureEnclave.Store.store(list: userList)
         }
     }
 }
