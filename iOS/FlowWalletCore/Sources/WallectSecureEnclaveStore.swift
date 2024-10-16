@@ -7,6 +7,8 @@
 
 import Foundation
 import KeychainAccess
+import CryptoTokenKit
+import CryptoKit
 
 public extension WallectSecureEnclave {
     enum StoreError: Error {
@@ -118,9 +120,31 @@ public extension WallectSecureEnclave {
         public static func fetch(by key: String) throws -> Data? {
             let list: [StoreInfo] = try fetch()
             let model = list.last { info in
-                info.uniq == key
+                info.uniq == key && canKeySign(key: info.publicKey)
             }
             return model?.publicKey
+        }
+        
+        private static func canKeySign(key: Data) -> Bool {
+            guard let pk = try? WallectSecureEnclave(privateKey: key),
+                  let data = generateRandomBytes(),
+                  let _ = try? pk.sign(data: data) else {
+                return false
+            }
+            return true
+        }
+        
+        private static func generateRandomBytes(length: Int = 32) -> Data? {
+            var keyData = Data(count: length)
+            let result = keyData.withUnsafeMutableBytes {
+                SecRandomCopyBytes(kSecRandomDefault, length, $0.baseAddress!)
+            }
+            
+            if result == errSecSuccess {
+                return keyData
+            }
+            
+            return nil
         }
     }
 
