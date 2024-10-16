@@ -9,6 +9,7 @@ import Foundation
 import KeychainAccess
 import CryptoTokenKit
 import CryptoKit
+import QuartzCore
 
 public extension WallectSecureEnclave {
     enum StoreError: Error {
@@ -32,13 +33,13 @@ public extension WallectSecureEnclave {
             storeBackup(key: key, value: value)
             var userList = try fetch()
             let targetModel = userList.first { info in
-                info.uniq == key
+                info.uniq == key && info.keyData == value
             }
             if targetModel == nil {
-                let newModel = StoreInfo(uniq: key, publicKey: value)
+                let newModel = StoreInfo(uniq: key, keyData: value)
                 userList.insert(newModel, at: 0)
+                try Store.store(list: userList)
             }
-            try Store.store(list: userList)
         }
 
         private static func storeBackup(key: String, value: Data) {
@@ -61,7 +62,7 @@ public extension WallectSecureEnclave {
                 return
             }
             for model in users {
-                try? store(key: model.uniq, value: model.publicKey)
+                try? store(key: model.uniq, value: model.keyData)
             }
         }
         
@@ -72,7 +73,7 @@ public extension WallectSecureEnclave {
                 return
             }
             for model in userList {
-                storeBackup(key: model.uniq, value: model.publicKey)
+                storeBackup(key: model.uniq, value: model.keyData)
             }
         }
         
@@ -104,6 +105,7 @@ public extension WallectSecureEnclave {
 //            return true
 //        }
 
+        
         public static func fetch() throws -> [StoreInfo] {
             let keychain = Keychain(service: service)
             guard let data = try keychain.getData(userKey) else {
@@ -114,15 +116,24 @@ public extension WallectSecureEnclave {
                 print("[SecureEnclave] decoder failed on loginedUser ")
                 throw StoreError.encode
             }
-            return users
+            var pre = CACurrentMediaTime()
+            let validList = users.map { model in
+                var store = model
+                store.isValid = canKeySign(key: model.keyData)
+                return store
+            }
+            var cur = CACurrentMediaTime()
+            print("[SecureEnclave] \(users.count) cost time \(cur - pre) ")
+//            let result = validList.filter { $0.isShow ?? true }
+            return validList
         }
         
         public static func fetch(by key: String) throws -> Data? {
             let list: [StoreInfo] = try fetch()
             let model = list.last { info in
-                info.uniq == key && canKeySign(key: info.publicKey)
+                info.uniq == key && (info.isShow ?? true)
             }
-            return model?.publicKey
+            return model?.keyData
         }
         
         private static func canKeySign(key: Data) -> Bool {
@@ -147,14 +158,26 @@ public extension WallectSecureEnclave {
             return nil
         }
     }
-
+    
+    
     struct StoreInfo: Codable {
         public var uniq: String
-        public var publicKey: Data
+        public var keyData: Data
+        public var isValid: Bool? = true
+        public var isShow: Bool? = true
         
-        public init(uniq: String, publicKey: Data) {
+        public init(uniq: String, keyData: Data, isValid: Bool? = true, isShow: Bool? = true) {
             self.uniq = uniq
-            self.publicKey = publicKey
+            self.keyData = keyData
+            self.isValid = isValid
+            self.isShow = isShow
         }
+    }
+}
+
+extension Array where Element == WallectSecureEnclave.StoreInfo {
+    public func validList() -> [WallectSecureEnclave.StoreInfo] {
+        let result = self.filter { $0.isShow ?? true }
+        return result
     }
 }
