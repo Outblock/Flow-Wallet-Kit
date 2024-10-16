@@ -117,7 +117,7 @@ public extension WallectSecureEnclave {
         
         public static func fetch(by key: String) throws -> Data? {
             let list: [StoreInfo] = try fetch()
-            let model = list.first { info in
+            let model = list.last { info in
                 info.uniq == key
             }
             return model?.publicKey
