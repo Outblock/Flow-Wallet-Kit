@@ -116,32 +116,30 @@ public extension WallectSecureEnclave {
                 print("[SecureEnclave] decoder failed on loginedUser ")
                 throw StoreError.encode
             }
-            let validList = users.map { model in
-                var store = model
-                store.isValid = canKeySign(key: model.publicKey)
-                return store
-            }
-            return validList
+            return users
         }
         
-        public static func fetch(by key: String) throws -> Data? {
-            let model = try fetchModel(by: key)
-            return model?.publicKey
+        public static func fetchAllModel(by key: String) throws -> [StoreInfo] {
+            let list: [StoreInfo] = try fetch()
+            let result = list.filter { $0.uniq == key }
+            return result
         }
         
         public static func fetchModel(by key: String) throws -> StoreInfo? {
             let list: [StoreInfo] = try fetch()
-            var model = list.last { info in
-                info.uniq == key && (info.isShow ?? true)
+            var model = list.first { info in
+                info.uniq == key && canKeySign(key: info.publicKey)
             }
             if var model = model {
-                model.isValid = canKeySign(key: model.publicKey)
+                model.isValid = true
                 return model
             }
+            
             return nil
         }
         
-        private static func canKeySign(key: Data) -> Bool {
+        
+        static func canKeySign(key: Data) -> Bool {
             guard let pk = try? WallectSecureEnclave(privateKey: key),
                   let data = generateRandomBytes(),
                   let _ = try? pk.sign(data: data) else {
@@ -163,21 +161,17 @@ public extension WallectSecureEnclave {
             return nil
         }
         
-        @discardableResult
-        public static func hideKey(by key: String, and value: Data) throws -> Bool {
+        public static func hideInvalidKey(by key: String) throws {
             var userList = try fetch()
-            let index = userList.firstIndex { $0.uniq == key && $0.publicKey == value }
-            if let index = index {
-                var targetModel = userList[index]
-                if targetModel.isValid == false {
-                    targetModel.isShow = false
-                    userList[index] = targetModel
-                    try Store.store(list: userList)
-                    return true
+            let result = userList.map { model in
+                var model = model
+                if model.uniq == key {
+                    model.isValid = canKeySign(key: model.publicKey)
+                    model.isShow = model.isValid
                 }
-                return false
+                return model
             }
-            return false
+            try Store.store(list: result)
         }
     }
     
@@ -212,8 +206,8 @@ extension WallectSecureEnclave.Store {
 }
 
 extension Array where Element == WallectSecureEnclave.StoreInfo {
-    public func validList() -> [WallectSecureEnclave.StoreInfo] {
-        let result = self.filter { $0.isShow ?? true }
+    public func valid() -> [WallectSecureEnclave.StoreInfo] {
+        let result = self.filter { WallectSecureEnclave.Store.canKeySign(key: $0.publicKey) }
         return result
     }
 }
