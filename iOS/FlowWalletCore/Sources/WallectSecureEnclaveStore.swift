@@ -33,7 +33,7 @@ public extension WallectSecureEnclave {
             storeBackup(key: key, value: value)
             var userList = try fetch()
             let targetModel = userList.first { info in
-                info.uniq == key && info.keyData == value
+                info.uniq == key && info.publicKey == value
             }
             if targetModel == nil {
                 let newModel = StoreInfo(uniq: key, keyData: value)
@@ -62,7 +62,7 @@ public extension WallectSecureEnclave {
                 return
             }
             for model in users {
-                try? store(key: model.uniq, value: model.keyData)
+                try? store(key: model.uniq, value: model.publicKey)
             }
         }
         
@@ -73,7 +73,7 @@ public extension WallectSecureEnclave {
                 return
             }
             for model in userList {
-                storeBackup(key: model.uniq, value: model.keyData)
+                storeBackup(key: model.uniq, value: model.publicKey)
             }
         }
         
@@ -119,7 +119,7 @@ public extension WallectSecureEnclave {
             var pre = CACurrentMediaTime()
             let validList = users.map { model in
                 var store = model
-                store.isValid = canKeySign(key: model.keyData)
+                store.isValid = canKeySign(key: model.publicKey)
                 return store
             }
             var cur = CACurrentMediaTime()
@@ -129,11 +129,20 @@ public extension WallectSecureEnclave {
         }
         
         public static func fetch(by key: String) throws -> Data? {
+            let model = try fetchModel(by: key)
+            return model?.publicKey
+        }
+        
+        public static func fetchModel(by key: String) throws -> StoreInfo? {
             let list: [StoreInfo] = try fetch()
-            let model = list.last { info in
+            var model = list.last { info in
                 info.uniq == key && (info.isShow ?? true)
             }
-            return model?.keyData
+            if var model = model {
+                model.isValid = canKeySign(key: model.publicKey)
+                return model
+            }
+            return nil
         }
         
         private static func canKeySign(key: Data) -> Bool {
@@ -157,18 +166,35 @@ public extension WallectSecureEnclave {
             
             return nil
         }
+        
+        @discardableResult
+        public static func hideKey(by key: String, and value: Data) throws -> Bool {
+            var userList = try fetch()
+            let index = userList.firstIndex { $0.uniq == key && $0.publicKey == value }
+            if let index = index {
+                var targetModel = userList[index]
+                if targetModel.isValid == false {
+                    targetModel.isShow = false
+                    userList[index] = targetModel
+                    try Store.store(list: userList)
+                    return true
+                }
+                return false
+            }
+            return false
+        }
     }
     
     
     struct StoreInfo: Codable {
         public var uniq: String
-        public var keyData: Data
+        public var publicKey: Data
         public var isValid: Bool? = true
         public var isShow: Bool? = true
         
         public init(uniq: String, keyData: Data, isValid: Bool? = true, isShow: Bool? = true) {
             self.uniq = uniq
-            self.keyData = keyData
+            self.publicKey = keyData
             self.isValid = isValid
             self.isShow = isShow
         }
