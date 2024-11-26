@@ -86,8 +86,7 @@ public class SecureEnclaveKey: KeyProtocol {
                      signAlgo _: Flow.SignatureAlgorithm = .ECDSA_P256,
                      hashAlgo: Flow.HashAlgorithm) throws -> Data
     {
-        let hashed = SHA256.hash(data: data) // try hashAlgo.hash(data: data)
-        
+        let hashed = SHA256.hash(data: data) 
         return try key.signature(for: hashed).rawRepresentation
     }
 

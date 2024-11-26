@@ -13,7 +13,7 @@ extension Flow.HashAlgorithm {
     func hash(data: Data) throws -> Data {
         switch self {
         case .SHA2_256:
-            return Data(SHA256.hash(data: data))
+            return Hash.sha256(data: data)
         case .SHA3_256:
             return Hash.sha3_256(data: data)
         default:

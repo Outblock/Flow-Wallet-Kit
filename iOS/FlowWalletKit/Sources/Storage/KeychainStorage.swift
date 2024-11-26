@@ -15,7 +15,13 @@ public class KeychainStorage: StorageProtocol {
     let accessGroup: String?
     var keychain: Keychain
 
-    public init(service: String, label: String, synchronizable: Bool, accessGroup: String? = nil) {
+    public init(
+        service: String,
+        label: String,
+        synchronizable: Bool,
+        accessGroup: String? = nil,
+        deviceOnly: Bool = false
+    ) {
         self.service = service
         self.label = label
         self.synchronizable = synchronizable
@@ -23,16 +29,14 @@ public class KeychainStorage: StorageProtocol {
         if let accessGroup {
             keychain = Keychain(service: service, accessGroup: accessGroup)
                 .label(label)
-                .accessibility(.afterFirstUnlock)
                 .synchronizable(synchronizable)
-                .accessibility(.whenUnlockedThisDeviceOnly)
+                .accessibility( deviceOnly ? .whenUnlockedThisDeviceOnly : .whenUnlocked)
                 
         } else {
             keychain = Keychain(service: service)
                 .label(label)
                 .synchronizable(synchronizable)
-                .accessibility(.afterFirstUnlock)
-                .accessibility(.whenUnlockedThisDeviceOnly)
+                .accessibility( deviceOnly ? .whenUnlockedThisDeviceOnly : .whenUnlocked)
         }
     }
 
