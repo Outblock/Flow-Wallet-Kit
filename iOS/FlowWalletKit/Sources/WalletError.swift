@@ -22,6 +22,7 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case invaildSignatureAlgorithm
     case invaildPassword
     case invaildPrivateKey
+    case invaildKeyStoreJSON
     case invaildKeyStorePassword
     case signError
     case initPublicKeyFailed
