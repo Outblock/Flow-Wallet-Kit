@@ -9,12 +9,12 @@ import Foundation
 import WalletCore
 
 public enum BIP39 {
-    enum SeedPhraseLength: Int {
+    public enum SeedPhraseLength: Int,Codable {
         case twelve = 12
         case fifteen = 15
         case twentyFour = 24
 
-        var strength: Int32 {
+        public var strength: Int32 {
             switch self {
             case .twelve:
                 return 128

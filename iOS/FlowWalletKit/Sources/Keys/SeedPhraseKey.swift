@@ -25,23 +25,35 @@ public class SeedPhraseKey: KeyProtocol {
         let passphrase: String
     }
 
+    struct StoreData: Codable {
+        let entropy: Data
+        let derivationPath: String
+        let seedPhraseLength: BIP39.SeedPhraseLength
+        let passphrase: String
+    }
+
     public var storage: any StorageProtocol
     public var keyType: KeyType = .seedPhrase
     public var derivationPath = "m/44'/539'/0'/0/0"
     public var passphrase: String = ""
-    static let seedPhraseLength: BIP39.SeedPhraseLength = .twelve
+    public var seedPhraseLength: BIP39.SeedPhraseLength = SeedPhraseKey.defaultSeedPhraseLength
 
-    let hdWallet: HDWallet
+    public static let defaultSeedPhraseLength: BIP39.SeedPhraseLength = .twelve
+
+    public let hdWallet: HDWallet
 
     public init(hdWallet: HDWallet,
          storage: any StorageProtocol,
          derivationPath: String = "m/44'/539'/0'/0/0",
-         passphrase: String = "")
+         passphrase: String = "",
+         seedPhraseLength: BIP39.SeedPhraseLength = SeedPhraseKey.defaultSeedPhraseLength
+    )
     {
         self.hdWallet = hdWallet
         self.storage = storage
         self.derivationPath = derivationPath
         self.passphrase = passphrase
+        self.seedPhraseLength = seedPhraseLength
     }
 
     public static func create(_ advance: AdvanceOption, storage: any StorageProtocol) throws -> SeedPhraseKey {
@@ -52,19 +64,21 @@ public class SeedPhraseKey: KeyProtocol {
         let key = SeedPhraseKey(hdWallet: hdWallet,
                                 storage: storage,
                                 derivationPath: advance.derivationPath,
-                                passphrase: advance.passphrase)
+                                passphrase: advance.passphrase,
+                                seedPhraseLength: advance.seedPhraseLength
+        )
         return key
     }
 
     public static func create(storage: any StorageProtocol) throws -> SeedPhraseKey {
-        guard let hdWallet = HDWallet(strength: SeedPhraseKey.seedPhraseLength.strength, passphrase: "") else {
+        guard let hdWallet = HDWallet(strength: SeedPhraseKey.defaultSeedPhraseLength.strength, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
         return SeedPhraseKey(hdWallet: hdWallet, storage: storage)
     }
 
     public static func createAndStore(id: String, password: String, storage: any StorageProtocol) throws -> SeedPhraseKey {
-        guard let hdWallet = HDWallet(strength: SeedPhraseKey.seedPhraseLength.strength, passphrase: "") else {
+        guard let hdWallet = HDWallet(strength: SeedPhraseKey.defaultSeedPhraseLength.strength, passphrase: "") else {
             throw WalletError.initHDWalletFailed
         }
 
@@ -73,8 +87,9 @@ public class SeedPhraseKey: KeyProtocol {
         }
 
         let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        try storage.set(id, value: encrypted)
-        return SeedPhraseKey(hdWallet: hdWallet, storage: storage)
+        let key = SeedPhraseKey(hdWallet: hdWallet, storage: storage)
+        try key.store(id: id, password: password)
+        return key
     }
 
     public static func get(id: String, password: String, storage: any StorageProtocol) throws -> SeedPhraseKey {
@@ -82,16 +97,18 @@ public class SeedPhraseKey: KeyProtocol {
             throw WalletError.emptyKeychain
         }
 
+        let model = try JSONDecoder().decode(StoreData.self, from: data)
+
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
 
-        let entropy = try cipher.decrypt(combinedData: data)
-        guard let hdWallet = HDWallet(entropy: entropy, passphrase: "") else {
+        let entropy = try cipher.decrypt(combinedData: model.entropy)
+        guard let hdWallet = HDWallet(entropy: entropy, passphrase: model.passphrase) else {
             throw WalletError.initHDWalletFailed
         }
-
-        return SeedPhraseKey(hdWallet: hdWallet, storage: storage)
+        
+        return SeedPhraseKey(hdWallet: hdWallet, storage: storage, derivationPath: model.derivationPath, passphrase: model.passphrase, seedPhraseLength: model.seedPhraseLength)
     }
 
     public func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool {
@@ -107,7 +124,9 @@ public class SeedPhraseKey: KeyProtocol {
         }
 
         let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        try storage.set(id, value: encrypted)
+        let model = StoreData(entropy: encrypted, derivationPath: derivationPath, seedPhraseLength: seedPhraseLength, passphrase: passphrase)
+        let data = try JSONEncoder().encode(model)
+        try storage.set(id, value: data)
     }
 
     public static func restore(secret: KeyData, storage: any StorageProtocol) throws -> SeedPhraseKey {
