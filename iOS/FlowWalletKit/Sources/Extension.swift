@@ -50,13 +50,14 @@ extension String {
     }
 }
 
-extension Flow.ChainID {
-    var keyIndexer: URL? {
+public extension Flow.ChainID {
+
+    func keyIndexer(with publicKey: String) -> URL? {
         switch self {
         case .mainnet:
-            return URL(string: "https://production.key-indexer.flow.com/") ?? nil
+            return URL(string: "https://production.key-indexer.flow.com/key/\(publicKey)")
         case .testnet:
-            return URL(string: "https://staging.key-indexer.flow.com/") ?? nil
+            return URL(string: "https://staging.key-indexer.flow.com/key/\(publicKey)")
         default:
             return nil
         }

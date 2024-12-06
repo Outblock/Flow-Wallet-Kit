@@ -59,7 +59,7 @@ extension KeyIndexerResponse {
 
 public enum Network {
     public static func findAccount(publicKey: String, chainID: Flow.ChainID) async throws -> KeyIndexerResponse {
-        guard let host = chainID.keyIndexer?.absoluteString, let url = URL(string: host + "key/" + publicKey) else {
+        guard let url = chainID.keyIndexer(with: publicKey) else {
             throw WalletError.incorrectKeyIndexerURL
         }
         let urlRequest = URLRequest(url: url)
