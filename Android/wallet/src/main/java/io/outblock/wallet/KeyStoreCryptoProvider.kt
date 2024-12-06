@@ -38,4 +38,8 @@ class KeyStoreCryptoProvider(private val prefix: String): CryptoProvider {
     override fun getSignatureAlgorithm(): SignatureAlgorithm {
         return SignatureAlgorithm.ECDSA_P256
     }
+
+    override fun getKeyWeight(): Int {
+        return 1000
+    }
 }

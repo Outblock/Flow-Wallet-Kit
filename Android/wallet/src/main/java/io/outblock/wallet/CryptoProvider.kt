@@ -12,4 +12,5 @@ interface CryptoProvider {
     fun getSigner(): Signer
     fun getHashAlgorithm(): HashAlgorithm
     fun getSignatureAlgorithm(): SignatureAlgorithm
+    fun getKeyWeight(): Int
 }

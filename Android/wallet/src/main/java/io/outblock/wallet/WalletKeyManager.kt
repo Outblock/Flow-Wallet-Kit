@@ -18,7 +18,7 @@ import java.util.Enumeration
 import javax.security.auth.x500.X500Principal
 
 object KeyManager {
-    private const val KEYSTORE_ALIAS_PREFIX = "user_keystore_"
+    const val KEYSTORE_ALIAS_PREFIX = "user_keystore_"
     private val keyStore = KeyStore.getInstance("AndroidKeyStore")
 
     private var currentPrefix: String = ""
