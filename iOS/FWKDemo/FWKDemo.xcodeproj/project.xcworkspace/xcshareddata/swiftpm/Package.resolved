@@ -1,0 +1,50 @@
+{
+  "originHash" : "b9980f57bf0b8c1b153bc38dc5c99c17b24972e86795a11028787e9d3250b73b",
+  "pins" : [
+    {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/attaswift/BigInt.git",
+      "state" : {
+        "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+        "version" : "5.3.0"
+      }
+    },
+    {
+      "identity" : "flow-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/outblock/flow-swift.git",
+      "state" : {
+        "revision" : "123c01a5d82bfcb655c068864d747d83bf6f1d92",
+        "version" : "0.3.6"
+      }
+    },
+    {
+      "identity" : "flow-wallet-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Outblock/Flow-Wallet-Kit",
+      "state" : {
+        "revision" : "e8e4898c6b778fb5925c6f3cabda6374f66dcee6"
+      }
+    },
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
+      "state" : {
+        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
+        "version" : "4.2.2"
+      }
+    },
+    {
+      "identity" : "wallet-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Outblock/wallet-core",
+      "state" : {
+        "branch" : "master",
+        "revision" : "24497b1e6f34f171ad421dae8699758bda09e78d"
+      }
+    }
+  ],
+  "version" : 3
+}

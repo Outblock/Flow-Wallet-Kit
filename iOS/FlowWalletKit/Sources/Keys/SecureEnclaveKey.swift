@@ -6,67 +6,72 @@
 //
 
 import CryptoKit
-import Foundation
 import Flow
+import Foundation
 import KeychainAccess
 import WalletCore
 
-public class SEWallet: WalletProtocol {
+public class SecureEnclaveKey: KeyProtocol {
+    public typealias Advance = String
+
+    public var keyType: KeyType = .secureEnclave
     public let key: SecureEnclave.P256.Signing.PrivateKey
-    
-    public init(key: SecureEnclave.P256.Signing.PrivateKey) {
+    public var storage: any StorageProtocol
+
+    public init(key: SecureEnclave.P256.Signing.PrivateKey, storage: any StorageProtocol) {
         self.key = key
+        self.storage = storage
     }
-    
-    public static func create() throws -> SEWallet {
+
+    public static func create(storage: any StorageProtocol) throws -> SecureEnclaveKey {
         let key = try SecureEnclave.P256.Signing.PrivateKey()
-        return SEWallet(key: key)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
-    
-    public static func create(id: String, password: String, sync: Bool = false) throws -> SEWallet {
+
+    public static func createAndStore(id: String, password: String, storage: any StorageProtocol) throws -> SecureEnclaveKey {
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
         let key = try SecureEnclave.P256.Signing.PrivateKey()
         let encrypted = try cipher.encrypt(data: key.dataRepresentation)
-        try keychain.set(encrypted, key: id, ignoringAttributeSynchronizable: !sync)
-        return SEWallet(key: key)
+        try storage.set(id, value: encrypted)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
-    
-    public static func get(id: String, password: String) throws -> SEWallet {
-        guard let data = try keychain.getData(id) else {
+
+    public static func get(id: String, password: String, storage: any StorageProtocol) throws -> SecureEnclaveKey {
+        guard let data = try storage.get(id) else {
             throw WalletError.emptyKeychain
         }
-        
+
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
-        
+
         let pk = try cipher.decrypt(combinedData: data)
         let key = try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: pk)
-        return SEWallet(key: key)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
-    
-    public static func restore(secret: Data) throws -> SEWallet {
+
+    public static func restore(secret: Data, storage: any StorageProtocol) throws -> SecureEnclaveKey {
         let key = try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: secret)
-        return SEWallet(key: key)
+        return SecureEnclaveKey(key: key, storage: storage)
     }
-    
-    public func store(id: String, password: String, sync: Bool) throws {
+
+    public func store(id: String, password: String) throws {
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
         let encrypted = try cipher.encrypt(data: key.dataRepresentation)
-        try keychain.set(encrypted, key: id, ignoringAttributeSynchronizable: !sync)
+        try storage.set(id, value: encrypted)
     }
-    
-    public func publicKey(signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> Data {
+
+    public func publicKey(signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> Data? {
         if signAlgo != .ECDSA_P256 {
-            throw WalletError.invaildSignatureAlgorithm
+            return nil
         }
         return key.publicKey.rawRepresentation
     }
-    
+
     public func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) -> Bool {
         if signAlgo != .ECDSA_P256 {
             return false
@@ -76,11 +81,16 @@ public class SEWallet: WalletProtocol {
         }
         return result
     }
-    
-    public func sign(data: Data, 
-                     signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256,
-                     hashAlgo: Flow.HashAlgorithm) throws -> Data {
-        let hashed = try hashAlgo.hash(data: data)
+
+    public func sign(data: Data,
+                     signAlgo _: Flow.SignatureAlgorithm = .ECDSA_P256,
+                     hashAlgo: Flow.HashAlgorithm) throws -> Data
+    {
+        let hashed = SHA256.hash(data: data) 
         return try key.signature(for: hashed).rawRepresentation
+    }
+
+    public func rawSign(data: Data, signAlgo _: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> Data {
+        return try key.signature(for: data).rawRepresentation
     }
 }
