@@ -18,15 +18,8 @@ public class SeedPhraseKey: KeyProtocol {
         let passphrase: String
     }
 
-    public struct KeyData {
+    public struct KeyData: Codable {
         let mnemonic: String
-        let derivationPath: String
-        let seedPhraseLength: BIP39.SeedPhraseLength
-        let passphrase: String
-    }
-
-    struct StoreData: Codable {
-        let entropy: Data
         let derivationPath: String
         let seedPhraseLength: BIP39.SeedPhraseLength
         let passphrase: String
@@ -97,14 +90,14 @@ public class SeedPhraseKey: KeyProtocol {
             throw WalletError.emptyKeychain
         }
 
-        let model = try JSONDecoder().decode(StoreData.self, from: data)
-
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
 
-        let entropy = try cipher.decrypt(combinedData: model.entropy)
-        guard let hdWallet = HDWallet(entropy: entropy, passphrase: model.passphrase) else {
+        let entropyData = try cipher.decrypt(combinedData: data)
+        let model = try JSONDecoder().decode(KeyData.self, from: entropyData)
+
+        guard let hdWallet = HDWallet(mnemonic: model.mnemonic, passphrase: model.passphrase) else {
             throw WalletError.initHDWalletFailed
         }
         
@@ -122,11 +115,10 @@ public class SeedPhraseKey: KeyProtocol {
         guard let cipher = ChaChaPolyCipher(key: password) else {
             throw WalletError.initChaChapolyFailed
         }
-
-        let encrypted = try cipher.encrypt(data: hdWallet.entropy)
-        let model = StoreData(entropy: encrypted, derivationPath: derivationPath, seedPhraseLength: seedPhraseLength, passphrase: passphrase)
+        let model = KeyData(mnemonic: hdWallet.mnemonic, derivationPath: derivationPath, seedPhraseLength: seedPhraseLength, passphrase: passphrase)
         let data = try JSONEncoder().encode(model)
-        try storage.set(id, value: data)
+        let encrypted = try cipher.encrypt(data: data)
+        try storage.set(id, value: encrypted)
     }
 
     public static func restore(secret: KeyData, storage: any StorageProtocol) throws -> SeedPhraseKey {
