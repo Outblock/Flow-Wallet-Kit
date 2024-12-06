@@ -22,6 +22,7 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     case invaildSignatureAlgorithm
     case invaildPassword
     case invaildPrivateKey
+    case invaildKeyStoreJSON
     case invaildKeyStorePassword
     case signError
     case initPublicKeyFailed
@@ -36,6 +37,6 @@ public enum WalletError: String, Error, CaseIterable, CustomStringConvertible {
     }
 
     public var description: String {
-        "\(type(of: self)) Code: \(errorCode) - \(self)"
+        "\(type(of: self)) Code: \(errorCode)-\(self.rawValue)"
     }
 }

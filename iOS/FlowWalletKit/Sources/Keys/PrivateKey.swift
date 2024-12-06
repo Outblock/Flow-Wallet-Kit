@@ -90,8 +90,10 @@ public class PrivateKey: KeyProtocol {
             throw WalletError.restoreWalletFailed
         }
 
-        let storedKey = StoredKey.importJSON(json: jsonData)
-        guard let pkData = storedKey?.decryptPrivateKey(password: passwordData) else {
+        guard let storedKey = StoredKey.importJSON(json: jsonData) else {
+            throw WalletError.invaildKeyStoreJSON
+        }
+        guard let pkData = storedKey.decryptPrivateKey(password: passwordData) else {
             throw WalletError.invaildKeyStorePassword
         }
 

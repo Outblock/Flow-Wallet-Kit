@@ -13,7 +13,7 @@ extension Flow.HashAlgorithm {
     func hash(data: Data) throws -> Data {
         switch self {
         case .SHA2_256:
-            return Data(SHA256.hash(data: data))
+            return Hash.sha256(data: data)
         case .SHA3_256:
             return Hash.sha3_256(data: data)
         default:
@@ -50,13 +50,14 @@ extension String {
     }
 }
 
-extension Flow.ChainID {
-    var keyIndexer: URL? {
+public extension Flow.ChainID {
+
+    func keyIndexer(with publicKey: String) -> URL? {
         switch self {
         case .mainnet:
-            return URL(string: "https://production.key-indexer.flow.com/") ?? nil
+            return URL(string: "https://production.key-indexer.flow.com/key/\(publicKey)")
         case .testnet:
-            return URL(string: "https://staging.key-indexer.flow.com/") ?? nil
+            return URL(string: "https://staging.key-indexer.flow.com/key/\(publicKey)")
         default:
             return nil
         }

@@ -15,7 +15,7 @@ public protocol ProxyProtocol {
     func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data
 }
 
-@MainActor
+
 public class Account {
     var childs: [Account]?
 
