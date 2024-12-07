@@ -49,12 +49,11 @@ public class Account {
         do {
             var keys: [Flow.AccountKey] = []
             if let p256 = try key.publicKey(signAlgo: .ECDSA_P256) {
-                let p256Keys = account.keys.filter { $0.weight > 1000 }.filter { $0.publicKey.data == p256 }
+                let p256Keys = account.keys.filter { $0.weight >= 1000 }.filter { $0.publicKey.data == p256 }
                 keys += p256Keys
             }
-
             if let secpKey = try key.publicKey(signAlgo: .ECDSA_SECP256k1) {
-                let secpKeys = account.keys.filter { $0.weight > 1000 }.filter { $0.publicKey.data == secpKey }
+                let secpKeys = account.keys.filter { $0.weight >= 1000 }.filter { $0.publicKey.data == secpKey }
                 keys += secpKeys
             }
 
