@@ -20,6 +20,7 @@ public struct KeyIndexerResponse: Codable {
         public let hashAlgo: Int
         public let signing: Flow.SignatureAlgorithm
         public let hashing: Flow.HashAlgorithm
+        public let isRevoked: Bool
     }
 }
 
@@ -36,7 +37,8 @@ extension KeyIndexerResponse {
                           publicKey: .init(hex: publicKey),
                           signAlgo: account.signing,
                           hashAlgo: account.hashing,
-                          weight: account.weight)
+                          weight: account.weight,
+                          revoked: account.isRevoked)
                 )
 
             } else {
@@ -47,7 +49,8 @@ extension KeyIndexerResponse {
                                      publicKey: .init(hex: publicKey),
                                      signAlgo: account.signing,
                                      hashAlgo: account.hashing,
-                                     weight: account.weight
+                                     weight: account.weight,
+                                     revoked: account.isRevoked
                                  )])
                 )
             }
