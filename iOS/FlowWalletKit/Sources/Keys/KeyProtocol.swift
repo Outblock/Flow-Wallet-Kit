@@ -33,13 +33,12 @@ public protocol KeyProtocol: Identifiable {
 
     func store(id: String, password: String) throws
     func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm) -> Bool
-    func publicKey(signAlgo: Flow.SignatureAlgorithm) throws -> Data?
-    func privateKey(signAlgo: Flow.SignatureAlgorithm) throws -> String?
+    func publicKey(signAlgo: Flow.SignatureAlgorithm) -> Data?
+    func privateKey(signAlgo: Flow.SignatureAlgorithm) -> Data?
     func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data
     func remove(id: String) throws
 
     func allKeys() -> [String]
-
 }
 
 public extension KeyProtocol {
@@ -48,11 +47,11 @@ public extension KeyProtocol {
     }
 
     var id: String {
-        if let data = try? publicKey(signAlgo: .ECDSA_P256) {
+        if let data = publicKey(signAlgo: .ECDSA_P256) {
             return data.hexString
         }
 
-        if let data = try? publicKey(signAlgo: .ECDSA_SECP256k1) {
+        if let data = publicKey(signAlgo: .ECDSA_SECP256k1) {
             return data.hexString
         }
 
