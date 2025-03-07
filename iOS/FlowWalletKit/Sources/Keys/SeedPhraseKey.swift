@@ -135,6 +135,21 @@ public class SeedPhraseKey: KeyProtocol {
         let pubK = try getPublicKey(signAlgo: signAlgo)
         return pubK.uncompressed.data.dropFirst()
     }
+    
+    public func privateKey(signAlgo: Flow.SignatureAlgorithm) throws -> String? {
+        switch signAlgo {
+        case .ECDSA_P256:
+            var pk = hdWallet.getKeyByCurve(curve: .nist256p1, derivationPath: derivationPath)
+            defer { pk = WalletCore.PrivateKey() }
+            return pk.data.hexValue
+        case .ECDSA_SECP256k1:
+            var pk = hdWallet.getKeyByCurve(curve: .secp256k1, derivationPath: derivationPath)
+            defer { pk = WalletCore.PrivateKey() }
+            return pk.data.hexValue
+        case .unknown:
+            throw WalletError.unsupportSignatureAlgorithm
+        }
+    }
 
     public func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data {
         let hashed = try hashAlgo.hash(data: data)

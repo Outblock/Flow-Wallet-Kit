@@ -125,6 +125,11 @@ public class PrivateKey: KeyProtocol {
         return pubK.uncompressed.data.dropFirst()
     }
 
+    public func privateKey(signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) throws -> String? {
+        let privateKey = pk.data.hexValue
+        return privateKey
+    }
+
     public func sign(data: Data, signAlgo: Flow.SignatureAlgorithm, hashAlgo: Flow.HashAlgorithm) throws -> Data {
         let hashed = try hashAlgo.hash(data: data)
         guard let curve = signAlgo.WCCurve else {
@@ -147,4 +152,6 @@ public class PrivateKey: KeyProtocol {
             throw WalletError.unsupportSignatureAlgorithm
         }
     }
+
+
 }

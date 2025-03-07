@@ -72,6 +72,10 @@ public class SecureEnclaveKey: KeyProtocol {
         return key.publicKey.rawRepresentation
     }
 
+    public func privateKey(signAlgo: Flow.SignatureAlgorithm) throws -> String? {
+        return key.dataRepresentation.hexValue
+    }
+
     public func isValidSignature(signature: Data, message: Data, signAlgo: Flow.SignatureAlgorithm = .ECDSA_P256) -> Bool {
         if signAlgo != .ECDSA_P256 {
             return false
